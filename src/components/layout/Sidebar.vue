@@ -1,6 +1,6 @@
 <!-- src/components/layout/Sidebar.vue -->
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onUnmounted } from "vue";
 import { useChapterStore } from "../../stores/chapter";
 import { useProjectStore } from "../../stores/project";
 import { useSearchStore } from "../../stores/search";
@@ -28,10 +28,18 @@ const handleSearchInput = () => {
   }, 300);
 };
 
+const sanitizeSnippet = (s: string): string => {
+  return s.replace(/<[^>]*>/g, (tag) => (tag === "<b>" || tag === "</b>" || tag === "<b/>" ? tag : ""));
+};
+
 const handleClearSearch = () => {
   searchInput.value = "";
   searchStore.clear();
 };
+
+onUnmounted(() => {
+  if (debounceTimer) clearTimeout(debounceTimer);
+});
 
 watch(activeTab, (tab) => {
   if (tab !== "search") {
@@ -213,7 +221,7 @@ const formatWordCount = (count: number) => {
             @click="handleChapterClick(result.chapter_id)"
           >
             <div class="search-result-title">📄 {{ result.chapter_title }}</div>
-            <div class="search-result-snippet" v-html="result.snippet"></div>
+            <div class="search-result-snippet" v-html="sanitizeSnippet(result.snippet)"></div>
           </div>
         </div>
         <div v-else-if="!searchStore.query" class="empty-state">输入关键词搜索</div>

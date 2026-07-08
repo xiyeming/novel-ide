@@ -1,6 +1,9 @@
 <!-- src/components/layout/AIPanel.vue -->
 <script setup lang="ts">
 import { ref } from "vue";
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
 import { useAIStore } from "../../stores/ai";
 
 const aiStore = useAIStore();
@@ -15,13 +18,13 @@ const models = [
 ];
 
 function renderMarkdown(text: string): string {
-  let html = text;
+  // Escape HTML as the FIRST step (Critical 1: XSS prevention)
+  let html = escapeHtml(text);
   // Code blocks (``` ... ```)
   html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_m, lang: string, code: string) => {
-    const escaped = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    return `<pre class="md-code-block"><code class="language-${lang}">${escaped}</code></pre>`;
+    return `<pre class="md-code-block"><code class="language-${lang}">${code}</code></pre>`;
   });
-  // Inline code
+  // Inline code (Important 5: content is already escaped above)
   html = html.replace(/`([^`\n]+)`/g, '<code class="md-inline-code">$1</code>');
   // Headers
   html = html.replace(/^### (.+)$/gm, "<h3>$1</h3>");
@@ -36,8 +39,12 @@ function renderMarkdown(text: string): string {
   // Unordered lists
   html = html.replace(/^[*-] (.+)$/gm, "<li>$1</li>");
   html = html.replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`);
-  // Ordered lists
+  // Ordered lists (Important 4: wrap consecutive <li> in <ol>)
   html = html.replace(/^\d+\. (.+)$/gm, "<li>$1</li>");
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, (m) => {
+    if (m.includes("<ul>")) return m;
+    return `<ol>${m}</ol>`;
+  });
   // Paragraphs: double newline → paragraph break
   html = html.replace(/\n{2,}/g, "</p><p>");
   // Single newlines → <br>
