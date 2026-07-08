@@ -1,0 +1,22 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --color-bg: #1e1e1e;
+  --color-sidebar: #252526;
+  --color-editor: #1e1e1e;
+  --color-text: #d4d4d4;
+  --color-text-secondary: #858585;
+  --color-border: #3c3c3c;
+  --color-accent: #007acc;
+  --color-accent-hover: #1a8ad4;
+  --color-success: #4ec9b0;
+  --color-warning: #dcdcaa;
+  --color-error: #f44747;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicbarker/tauri-v2/main/core/tauri-config-schema/schema.json",
+  "productName": "Novel IDE",
+  "version": "0.1.0",
+  "identifier": "com.novel-ide.app",
+  "build": {
+    "beforeDevCommand": "bun run dev",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "bun run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Novel IDE",
+        "width": 1400,
+        "height": 900,
+        "minWidth": 1024,
+        "minHeight": 680,
+        "decorations": false,
+        "resizable": true,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "plugins": {
+    "shell": {
+      "open": true
+    },
+    "fs": {
+      "scope": {
+        "allow": ["**"],
+        "deny": []
+      }
+    }
+  }
+}
