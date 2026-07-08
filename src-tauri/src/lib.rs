@@ -32,6 +32,11 @@ pub fn run() {
             commands::project::delete_project,
             commands::settings::get_settings,
             commands::settings::update_settings,
+            commands::chapter::create_chapter,
+            commands::chapter::list_chapters,
+            commands::chapter::get_chapter,
+            commands::chapter::update_chapter,
+            commands::chapter::delete_chapter,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
