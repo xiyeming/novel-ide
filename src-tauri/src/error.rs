@@ -15,6 +15,12 @@ pub enum AppError {
     #[error("项目不存在: {0}")]
     ProjectNotFound(String),
 
+    #[error("模型提供者不存在: {0}")]
+    ProviderNotFound(String),
+
+    #[error("连接测试失败: {0}")]
+    ConnectionTestFailed(String),
+
     #[error("参数错误: {0}")]
     InvalidArgument(String),
 

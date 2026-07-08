@@ -42,6 +42,11 @@ pub fn run() {
             commands::version::save_version,
             commands::version::list_versions,
             commands::version::restore_version,
+            commands::model::create_provider,
+            commands::model::list_providers,
+            commands::model::update_provider,
+            commands::model::delete_provider,
+            commands::model::test_connection,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
