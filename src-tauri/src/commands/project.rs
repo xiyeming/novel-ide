@@ -1,4 +1,4 @@
-use crate::db::models::project::{CreateProjectRequest, Project};
+use crate::db::models::project::{CreateProjectRequest, Project, UpdateProjectRequest};
 use crate::error::AppResult;
 use crate::state::AppState;
 use tauri::State;
@@ -92,4 +92,42 @@ pub async fn delete_project(
     let _ = std::fs::remove_dir_all(&project.path);
 
     Ok(())
+}
+
+#[tauri::command]
+pub async fn update_project(
+    state: State<'_, AppState>,
+    project_id: String,
+    genre: Option<String>,
+    sub_genre: Option<String>,
+    target_readers: Option<String>,
+    total_chapters: Option<i32>,
+    words_per_chapter: Option<i32>,
+    narrative_pov: Option<String>,
+    story_structure: Option<String>,
+    core_outline: Option<String>,
+    world_settings: Option<String>,
+    character_profiles: Option<String>,
+    golden_finger: Option<String>,
+    writing_constraints: Option<String>,
+    style_constraints: Option<String>,
+) -> AppResult<Project> {
+    let db = state.db().await?;
+    let req = UpdateProjectRequest {
+        genre,
+        sub_genre,
+        target_readers,
+        total_chapters,
+        words_per_chapter,
+        narrative_pov,
+        story_structure,
+        core_outline,
+        world_settings,
+        character_profiles,
+        golden_finger,
+        writing_constraints,
+        style_constraints,
+    };
+    let project = Project::update(&db, &project_id, &req).await?;
+    Ok(project)
 }

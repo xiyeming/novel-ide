@@ -13,9 +13,17 @@ interface Project {
   words_per_chapter: number | null;
   narrative_pov: string | null;
   story_structure: string | null;
+  core_outline: string | null;
+  world_settings: string | null;
+  character_profiles: string | null;
+  golden_finger: string | null;
+  writing_constraints: string | null;
+  style_constraints: string | null;
   created_at: string;
   updated_at: string;
 }
+
+export { type Project };
 
 export const useProjectStore = defineStore("project", () => {
   const { call } = useTauriIPC();
@@ -62,6 +70,22 @@ export const useProjectStore = defineStore("project", () => {
     }
   };
 
+  const updateProject = async (
+    projectId: string,
+    params: Partial<Omit<Project, "id" | "name" | "path" | "created_at" | "updated_at">>
+  ) => {
+    const project = await call<Project>("update_project", {
+      projectId,
+      ...params,
+    });
+    currentProject.value = project;
+    const idx = projects.value.findIndex((p) => p.id === projectId);
+    if (idx !== -1) {
+      projects.value[idx] = project;
+    }
+    return project;
+  };
+
   return {
     projects,
     currentProject,
@@ -70,5 +94,6 @@ export const useProjectStore = defineStore("project", () => {
     createProject,
     openProject,
     deleteProject,
+    updateProject,
   };
 });

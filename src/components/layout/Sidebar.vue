@@ -4,12 +4,13 @@ import { ref, computed, watch } from "vue";
 import { useChapterStore } from "../../stores/chapter";
 import { useProjectStore } from "../../stores/project";
 import { useSearchStore } from "../../stores/search";
+import ProjectConfig from "../project/ProjectConfig.vue";
 
 const emit = defineEmits<{
   openChapter: [chapterId: string];
 }>();
 
-const activeTab = ref<"files" | "search" | "settings">("files");
+const activeTab = ref<"files" | "search" | "config" | "settings">("files");
 const chapterStore = useChapterStore();
 const projectStore = useProjectStore();
 const searchStore = useSearchStore();
@@ -41,6 +42,7 @@ watch(activeTab, (tab) => {
 const tabs = [
   { id: "files" as const, icon: "📁", label: "文件" },
   { id: "search" as const, icon: "🔍", label: "搜索" },
+  { id: "config" as const, icon: "📝", label: "配置" },
   { id: "settings" as const, icon: "⚙️", label: "设置" },
 ];
 
@@ -215,6 +217,11 @@ const formatWordCount = (count: number) => {
           </div>
         </div>
         <div v-else-if="!searchStore.query" class="empty-state">输入关键词搜索</div>
+      </div>
+      <div v-else-if="activeTab === 'config'" class="tab-panel">
+        <div class="panel-header-sm">项目配置</div>
+        <div v-if="!hasProject" class="empty-state">未打开项目</div>
+        <ProjectConfig v-else />
       </div>
       <div v-else-if="activeTab === 'settings'" class="tab-panel">
         <div class="panel-header-sm">设置</div>

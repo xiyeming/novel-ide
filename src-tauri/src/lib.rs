@@ -30,6 +30,7 @@ pub fn run() {
             commands::project::list_projects,
             commands::project::open_project,
             commands::project::delete_project,
+            commands::project::update_project,
             commands::settings::get_settings,
             commands::settings::update_settings,
             commands::chapter::create_chapter,

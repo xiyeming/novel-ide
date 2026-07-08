@@ -37,6 +37,23 @@ pub struct CreateProjectRequest {
     pub story_structure: Option<String>,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct UpdateProjectRequest {
+    pub genre: Option<String>,
+    pub sub_genre: Option<String>,
+    pub target_readers: Option<String>,
+    pub total_chapters: Option<i32>,
+    pub words_per_chapter: Option<i32>,
+    pub narrative_pov: Option<String>,
+    pub story_structure: Option<String>,
+    pub core_outline: Option<String>,
+    pub world_settings: Option<String>,
+    pub character_profiles: Option<String>,
+    pub golden_finger: Option<String>,
+    pub writing_constraints: Option<String>,
+    pub style_constraints: Option<String>,
+}
+
 impl Project {
     pub async fn create(
         db: &sqlx::SqlitePool,
@@ -99,5 +116,51 @@ impl Project {
             return Err(crate::error::AppError::ProjectNotFound(id.to_string()));
         }
         Ok(())
+    }
+
+    pub async fn update(
+        db: &sqlx::SqlitePool,
+        id: &str,
+        req: &UpdateProjectRequest,
+    ) -> Result<Self, crate::error::AppError> {
+        let now = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
+
+        sqlx::query_as::<_, Self>(
+            r#"UPDATE projects SET
+                genre = COALESCE(?, genre),
+                sub_genre = COALESCE(?, sub_genre),
+                target_readers = COALESCE(?, target_readers),
+                total_chapters = COALESCE(?, total_chapters),
+                words_per_chapter = COALESCE(?, words_per_chapter),
+                narrative_pov = COALESCE(?, narrative_pov),
+                story_structure = COALESCE(?, story_structure),
+                core_outline = COALESCE(?, core_outline),
+                world_settings = COALESCE(?, world_settings),
+                character_profiles = COALESCE(?, character_profiles),
+                golden_finger = COALESCE(?, golden_finger),
+                writing_constraints = COALESCE(?, writing_constraints),
+                style_constraints = COALESCE(?, style_constraints),
+                updated_at = ?
+            WHERE id = ?
+            RETURNING *"#,
+        )
+        .bind(&req.genre)
+        .bind(&req.sub_genre)
+        .bind(&req.target_readers)
+        .bind(req.total_chapters)
+        .bind(req.words_per_chapter)
+        .bind(&req.narrative_pov)
+        .bind(&req.story_structure)
+        .bind(&req.core_outline)
+        .bind(&req.world_settings)
+        .bind(&req.character_profiles)
+        .bind(&req.golden_finger)
+        .bind(&req.writing_constraints)
+        .bind(&req.style_constraints)
+        .bind(&now)
+        .bind(id)
+        .fetch_optional(db)
+        .await?
+        .ok_or_else(|| crate::error::AppError::ProjectNotFound(id.to_string()))
     }
 }
