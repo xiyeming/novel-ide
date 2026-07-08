@@ -1,8 +1,9 @@
 <!-- src/components/layout/Sidebar.vue -->
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useChapterStore } from "../../stores/chapter";
 import { useProjectStore } from "../../stores/project";
+import { useSearchStore } from "../../stores/search";
 
 const emit = defineEmits<{
   openChapter: [chapterId: string];
@@ -11,7 +12,31 @@ const emit = defineEmits<{
 const activeTab = ref<"files" | "search" | "settings">("files");
 const chapterStore = useChapterStore();
 const projectStore = useProjectStore();
+const searchStore = useSearchStore();
 const hasProject = computed(() => !!projectStore.currentProject);
+
+const searchInput = ref("");
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+const handleSearchInput = () => {
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    if (projectStore.currentProject) {
+      searchStore.search(projectStore.currentProject.id, searchInput.value);
+    }
+  }, 300);
+};
+
+const handleClearSearch = () => {
+  searchInput.value = "";
+  searchStore.clear();
+};
+
+watch(activeTab, (tab) => {
+  if (tab !== "search") {
+    handleClearSearch();
+  }
+});
 
 const tabs = [
   { id: "files" as const, icon: "📁", label: "文件" },
@@ -154,7 +179,42 @@ const formatWordCount = (count: number) => {
       </div>
       <div v-else-if="activeTab === 'search'" class="tab-panel">
         <div class="panel-header-sm">全局搜索</div>
-        <div class="empty-state">输入关键词搜索</div>
+        <div class="search-input-wrapper">
+          <input
+            v-model="searchInput"
+            type="text"
+            class="search-input"
+            placeholder="输入关键词搜索…"
+            @input="handleSearchInput"
+          />
+          <button
+            v-if="searchInput"
+            class="search-clear-btn"
+            @click="handleClearSearch"
+            title="清除"
+          >
+            ✕
+          </button>
+        </div>
+        <div v-if="!hasProject" class="empty-state">未打开项目</div>
+        <div v-else-if="searchStore.loading" class="empty-state">
+          <span class="search-spinner"></span> 搜索中…
+        </div>
+        <div v-else-if="searchStore.query && searchStore.results.length === 0" class="empty-state">
+          未找到匹配结果
+        </div>
+        <div v-else-if="searchStore.results.length > 0" class="search-results">
+          <div
+            v-for="result in searchStore.results"
+            :key="result.chapter_id"
+            class="search-result-item"
+            @click="handleChapterClick(result.chapter_id)"
+          >
+            <div class="search-result-title">📄 {{ result.chapter_title }}</div>
+            <div class="search-result-snippet" v-html="result.snippet"></div>
+          </div>
+        </div>
+        <div v-else-if="!searchStore.query" class="empty-state">输入关键词搜索</div>
       </div>
       <div v-else-if="activeTab === 'settings'" class="tab-panel">
         <div class="panel-header-sm">设置</div>
@@ -324,6 +384,107 @@ const formatWordCount = (count: number) => {
   background: var(--bg-hover);
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.search-input-wrapper {
+  position: relative;
+  margin-bottom: var(--spacing-md);
+}
+
+.search-input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  padding-right: 28px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+}
+
+.search-clear-btn:hover {
+  color: var(--text-primary);
+}
+
+.search-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--text-muted);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.search-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.search-result-item {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.search-result-item:hover {
+  background: var(--bg-hover);
+}
+
+.search-result-title {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-result-snippet {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.search-result-snippet :deep(b) {
+  color: var(--accent);
+  font-weight: 600;
 }
 </style>
 
