@@ -14,6 +14,41 @@ const models = [
   { value: "qwen-max", label: "Qwen Max" },
 ];
 
+function renderMarkdown(text: string): string {
+  let html = text;
+  // Code blocks (``` ... ```)
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_m, lang: string, code: string) => {
+    const escaped = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return `<pre class="md-code-block"><code class="language-${lang}">${escaped}</code></pre>`;
+  });
+  // Inline code
+  html = html.replace(/`([^`\n]+)`/g, '<code class="md-inline-code">$1</code>');
+  // Headers
+  html = html.replace(/^### (.+)$/gm, "<h3>$1</h3>");
+  html = html.replace(/^## (.+)$/gm, "<h2>$1</h2>");
+  html = html.replace(/^# (.+)$/gm, "<h1>$1</h1>");
+  // Bold + italic
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
+  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
+  // Links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  // Unordered lists
+  html = html.replace(/^[*-] (.+)$/gm, "<li>$1</li>");
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`);
+  // Ordered lists
+  html = html.replace(/^\d+\. (.+)$/gm, "<li>$1</li>");
+  // Paragraphs: double newline → paragraph break
+  html = html.replace(/\n{2,}/g, "</p><p>");
+  // Single newlines → <br>
+  html = html.replace(/\n/g, "<br>");
+  // Wrap in <p> if not already block-level
+  if (!/^<(h[1-6]|pre|ul|ol|p)/.test(html)) {
+    html = `<p>${html}</p>`;
+  }
+  return html;
+}
+
 const sendMessage = () => {
   if (!input.value.trim()) return;
   aiStore.addMessage("user", input.value);
@@ -49,7 +84,12 @@ const clearChat = () => {
         :key="msg.id"
         :class="['message', msg.role]"
       >
-        <div class="message-content">{{ msg.content }}</div>
+        <div
+          v-if="msg.role === 'assistant'"
+          class="message-content md-rendered"
+          v-html="renderMarkdown(msg.content)"
+        ></div>
+        <div v-else class="message-content">{{ msg.content }}</div>
       </div>
     </div>
     <div class="ai-input">
@@ -162,6 +202,52 @@ const clearChat = () => {
   font-size: var(--font-size-md);
   line-height: 1.5;
   word-wrap: break-word;
+}
+
+.md-rendered :deep(h1),
+.md-rendered :deep(h2),
+.md-rendered :deep(h3) {
+  margin: 0.5em 0 0.25em;
+  font-weight: 600;
+}
+.md-rendered :deep(h1) { font-size: 1.2em; }
+.md-rendered :deep(h2) { font-size: 1.1em; }
+.md-rendered :deep(h3) { font-size: 1em; }
+
+.md-rendered :deep(pre) {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: var(--spacing-sm);
+  overflow-x: auto;
+  font-size: var(--font-size-sm);
+}
+.md-rendered :deep(code.md-inline-code) {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.1em 0.3em;
+  font-size: 0.9em;
+}
+.md-rendered :deep(p) {
+  margin: 0.4em 0;
+}
+.md-rendered :deep(ul) {
+  margin: 0.4em 0;
+  padding-left: 1.5em;
+}
+.md-rendered :deep(li) {
+  margin: 0.2em 0;
+}
+.md-rendered :deep(strong) {
+  font-weight: 600;
+}
+.md-rendered :deep(a) {
+  color: var(--accent);
+  text-decoration: none;
+}
+.md-rendered :deep(a:hover) {
+  text-decoration: underline;
 }
 
 .ai-input {
