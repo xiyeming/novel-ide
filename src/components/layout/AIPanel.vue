@@ -1,28 +1,52 @@
 <!-- src/components/layout/AIPanel.vue -->
 <script setup lang="ts">
 import { ref } from "vue";
+import { useAIStore } from "../../stores/ai";
 
-const messages = ref<{ role: "user" | "assistant"; content: string }[]>([]);
+const aiStore = useAIStore();
 const input = ref("");
+
+const models = [
+  { value: "deepseek-chat", label: "DeepSeek Chat" },
+  { value: "gpt-4o", label: "GPT-4o" },
+  { value: "claude-3.5-sonnet", label: "Claude 3.5 Sonnet" },
+  { value: "glm-4", label: "GLM-4" },
+  { value: "qwen-max", label: "Qwen Max" },
+];
 
 const sendMessage = () => {
   if (!input.value.trim()) return;
-  messages.value.push({ role: "user", content: input.value });
+  aiStore.addMessage("user", input.value);
   input.value = "";
   // AI response will be added later
+};
+
+const clearChat = () => {
+  aiStore.clearMessages();
 };
 </script>
 
 <template>
   <div class="ai-panel">
-    <div class="panel-header-sm">AI 助手</div>
+    <div class="panel-header-sm">
+      <span>AI 助手</span>
+      <button class="clear-btn" @click="clearChat" title="清空对话">🗑</button>
+    </div>
+    <div class="model-selector">
+      <label for="model-select">模型:</label>
+      <select id="model-select" v-model="aiStore.selectedModel">
+        <option v-for="model in models" :key="model.value" :value="model.value">
+          {{ model.label }}
+        </option>
+      </select>
+    </div>
     <div class="ai-messages">
-      <div v-if="messages.length === 0" class="empty-state">
+      <div v-if="aiStore.messages.length === 0" class="empty-state">
         <p>开始与 AI 对话</p>
       </div>
       <div
-        v-for="(msg, i) in messages"
-        :key="i"
+        v-for="msg in aiStore.messages"
+        :key="msg.id"
         :class="['message', msg.role]"
       >
         <div class="message-content">{{ msg.content }}</div>
@@ -50,12 +74,56 @@ const sendMessage = () => {
 }
 
 .panel-header-sm {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: var(--spacing-sm) var(--spacing-md);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-bottom: 1px solid var(--border);
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.clear-btn:hover {
+  background: var(--bg-surface);
+}
+
+.model-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.model-selector label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.model-selector select {
+  flex: 1;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  outline: none;
+}
+
+.model-selector select:focus {
+  border-color: var(--accent);
 }
 
 .ai-messages {
