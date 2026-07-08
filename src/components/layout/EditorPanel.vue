@@ -3,6 +3,7 @@
 import { ref, onUnmounted } from "vue";
 import MonacoEditor from "../editor/MonacoEditor.vue";
 import VersionHistory from "../editor/VersionHistory.vue";
+import ExportDialog from "../editor/ExportDialog.vue";
 import { useChapterStore } from "../../stores/chapter";
 import { useProjectStore } from "../../stores/project";
 
@@ -20,6 +21,7 @@ const activeTabId = ref<string | null>(null);
 const editorContent = ref("");
 const versionHistoryVisible = ref(false);
 const versionHistoryRef = ref<InstanceType<typeof VersionHistory> | null>(null);
+const exportDialogVisible = ref(false);
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
 onUnmounted(() => {
@@ -147,6 +149,13 @@ defineExpose({ openTab });
       >
         🕐
       </button>
+      <button
+        class="toolbar-btn"
+        @click="exportDialogVisible = true"
+        title="导出"
+      >
+        📦
+      </button>
     </div>
     <div class="editor-body">
       <div class="editor-content">
@@ -174,6 +183,12 @@ defineExpose({ openTab });
         @restored="handleVersionRestored"
       />
     </div>
+    <ExportDialog
+      v-if="exportDialogVisible"
+      :chapterId="activeTabId"
+      :chapterTitle="getActiveTab()?.name"
+      @close="exportDialogVisible = false"
+    />
   </div>
 </template>
 

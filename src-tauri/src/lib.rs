@@ -47,6 +47,8 @@ pub fn run() {
             commands::model::update_provider,
             commands::model::delete_provider,
             commands::model::test_connection,
+            commands::export::export_chapter,
+            commands::export::export_all_chapters,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
