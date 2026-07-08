@@ -40,6 +40,10 @@ pub async fn init_database(app: &AppHandle) -> Result<SqlitePool, crate::error::
         .execute(&pool)
         .await?;
 
+    sqlx::raw_sql(include_str!("../../migrations/004_versions_models.sql"))
+        .execute(&pool)
+        .await?;
+
     log::info!("数据库初始化完成: {}", db_path.display());
 
     Ok(pool)
