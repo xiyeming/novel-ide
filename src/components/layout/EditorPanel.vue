@@ -1,25 +1,94 @@
 <!-- src/components/layout/EditorPanel.vue -->
 <script setup lang="ts">
 import { ref } from "vue";
+import MonacoEditor from "../editor/MonacoEditor.vue";
+import { useChapterStore } from "../../stores/chapter";
 
-const tabs = ref<{ id: string; name: string; active: boolean }[]>([]);
+interface Tab {
+  id: string;
+  name: string;
+  content: string;
+  dirty: boolean;
+}
+
+const chapterStore = useChapterStore();
+const tabs = ref<Tab[]>([]);
 const activeTabId = ref<string | null>(null);
+const editorContent = ref("");
+let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+const getActiveTab = () => tabs.value.find((t) => t.id === activeTabId.value);
 
 const openTab = (id: string, name: string) => {
-  const exists = tabs.value.find((t) => t.id === id);
-  if (!exists) {
-    tabs.value.push({ id, name, active: true });
+  const existing = tabs.value.find((t) => t.id === id);
+  if (!existing) {
+    tabs.value.push({ id, name, content: "", dirty: false });
   }
-  tabs.value.forEach((t) => (t.active = t.id === id));
   activeTabId.value = id;
+
+  const tab = tabs.value.find((t) => t.id === id);
+  if (tab) {
+    // If chapter content not loaded yet, fetch it
+    if (!tab.content) {
+      chapterStore.openChapter(id).then((chapter) => {
+        if (chapter && tab) {
+          tab.content = chapter.content;
+          editorContent.value = chapter.content;
+        }
+      });
+    } else {
+      editorContent.value = tab.content;
+    }
+  }
 };
 
 const closeTab = (id: string) => {
   tabs.value = tabs.value.filter((t) => t.id !== id);
   if (activeTabId.value === id) {
     activeTabId.value = tabs.value.length > 0 ? tabs.value[tabs.value.length - 1].id : null;
+    if (activeTabId.value) {
+      const tab = tabs.value.find((t) => t.id === activeTabId.value);
+      editorContent.value = tab?.content ?? "";
+    }
   }
 };
+
+const handleContentChange = (value: string) => {
+  editorContent.value = value;
+  const tab = getActiveTab();
+  if (tab) {
+    tab.content = value;
+    tab.dirty = true;
+  }
+
+  // Auto-save with 1s debounce
+  if (autoSaveTimer) clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => {
+    if (activeTabId.value) {
+      chapterStore.updateChapterContent(activeTabId.value, value);
+      const t = getActiveTab();
+      if (t) t.dirty = false;
+    }
+  }, 1000);
+};
+
+const handleSave = () => {
+  if (autoSaveTimer) clearTimeout(autoSaveTimer);
+  if (activeTabId.value) {
+    chapterStore.updateChapterContent(activeTabId.value, editorContent.value);
+    const t = getActiveTab();
+    if (t) t.dirty = false;
+  }
+};
+
+const handleNewTab = () => {
+  chapterStore.createChapter("default", "未命名章节").then((chapter) => {
+    openTab(chapter.id, chapter.title);
+  });
+};
+
+// Expose openTab for external callers
+defineExpose({ openTab });
 </script>
 
 <template>
@@ -28,10 +97,11 @@ const closeTab = (id: string) => {
       <div
         v-for="tab in tabs"
         :key="tab.id"
-        :class="['editor-tab', { active: tab.active }]"
+        :class="['editor-tab', { active: tab.id === activeTabId }]"
         @click="openTab(tab.id, tab.name)"
       >
         <span class="tab-name">{{ tab.name }}</span>
+        <span v-if="tab.dirty" class="tab-dirty">●</span>
         <button class="tab-close" @click.stop="closeTab(tab.id)">×</button>
       </div>
     </div>
@@ -41,13 +111,16 @@ const closeTab = (id: string) => {
         <h2>Novel IDE</h2>
         <p>专业小说创作 IDE</p>
         <div class="welcome-actions">
-          <button class="action-btn">新建项目</button>
+          <button class="action-btn" @click="handleNewTab">新建章节</button>
           <button class="action-btn secondary">打开项目</button>
         </div>
       </div>
-      <div v-else class="editor-placeholder">
-        <div class="monaco-container" :id="`editor-${activeTabId}`"></div>
-      </div>
+      <MonacoEditor
+        v-else
+        :modelValue="editorContent"
+        @update:modelValue="handleContentChange"
+        @save="handleSave"
+      />
     </div>
   </div>
 </template>
@@ -91,6 +164,11 @@ const closeTab = (id: string) => {
   background: var(--bg-primary);
   color: var(--text-primary);
   border-bottom: 2px solid var(--accent);
+}
+
+.tab-dirty {
+  color: var(--warning);
+  font-size: 10px;
 }
 
 .tab-close {
@@ -164,10 +242,5 @@ const closeTab = (id: string) => {
 .action-btn.secondary {
   background: var(--bg-surface);
   color: var(--text-primary);
-}
-
-.monaco-container {
-  width: 100%;
-  height: 100%;
 }
 </style>
