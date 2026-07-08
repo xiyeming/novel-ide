@@ -1,15 +1,21 @@
 <!-- src/components/layout/IDELayout.vue -->
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import TitleBar from "./TitleBar.vue";
 import Sidebar from "./Sidebar.vue";
 import EditorPanel from "./EditorPanel.vue";
 import AIPanel from "./AIPanel.vue";
 import BottomPanel from "./BottomPanel.vue";
+import { useProjectStore } from "../../stores/project";
+import { useChapterStore } from "../../stores/chapter";
 
 const emit = defineEmits<{
   back: [];
 }>();
+
+const projectStore = useProjectStore();
+const chapterStore = useChapterStore();
+const editorPanelRef = ref<InstanceType<typeof EditorPanel> | null>(null);
 
 const sidebarWidth = ref(260);
 const aiPanelWidth = ref(320);
@@ -46,6 +52,27 @@ const onMouseUp = () => {
 // Global mouse events
 window.addEventListener("mousemove", onMouseMove);
 window.addEventListener("mouseup", onMouseUp);
+
+// Fetch chapters when project changes
+watch(
+  () => projectStore.currentProject,
+  async (project) => {
+    if (project) {
+      await chapterStore.fetchChapters(project.id);
+    } else {
+      chapterStore.chapters = [];
+      chapterStore.currentChapter = null;
+    }
+  },
+  { immediate: true }
+);
+
+const handleOpenChapter = (chapterId: string) => {
+  const chapter = chapterStore.chapters.find((c) => c.id === chapterId);
+  if (chapter && editorPanelRef.value) {
+    editorPanelRef.value.openTab(chapter.id, chapter.title);
+  }
+};
 </script>
 
 <template>
@@ -53,12 +80,12 @@ window.addEventListener("mouseup", onMouseUp);
     <TitleBar @back="emit('back')" />
     <div class="ide-main">
       <div class="ide-sidebar" :style="{ width: `${sidebarWidth}px` }">
-        <Sidebar />
+        <Sidebar @openChapter="handleOpenChapter" />
       </div>
       <div class="sidebar-resize" @mousedown="onMouseDown('sidebar', $event)" />
       <div class="ide-center">
         <div class="center-editor" :style="{ height: showBottomPanel ? `calc(100% - ${bottomPanelHeight}px)` : '100%' }">
-          <EditorPanel />
+          <EditorPanel ref="editorPanelRef" />
         </div>
         <div v-if="showBottomPanel" class="bottom-resize" @mousedown="onMouseDown('bottom', $event)" />
         <div v-if="showBottomPanel" class="center-bottom" :style="{ height: `${bottomPanelHeight}px` }">
