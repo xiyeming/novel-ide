@@ -1,8 +1,9 @@
 <!-- src/components/layout/EditorPanel.vue -->
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onUnmounted } from "vue";
 import MonacoEditor from "../editor/MonacoEditor.vue";
 import { useChapterStore } from "../../stores/chapter";
+import { useProjectStore } from "../../stores/project";
 
 interface Tab {
   id: string;
@@ -12,10 +13,15 @@ interface Tab {
 }
 
 const chapterStore = useChapterStore();
+const projectStore = useProjectStore();
 const tabs = ref<Tab[]>([]);
 const activeTabId = ref<string | null>(null);
 const editorContent = ref("");
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+onUnmounted(() => {
+  if (autoSaveTimer) clearTimeout(autoSaveTimer);
+});
 
 const getActiveTab = () => tabs.value.find((t) => t.id === activeTabId.value);
 
@@ -43,12 +49,16 @@ const openTab = (id: string, name: string) => {
 };
 
 const closeTab = (id: string) => {
+  const tab = tabs.value.find((t) => t.id === id);
+  if (tab?.dirty && !confirm(`"${tab.name}" 有未保存的更改，确定要关闭吗？`)) {
+    return;
+  }
   tabs.value = tabs.value.filter((t) => t.id !== id);
   if (activeTabId.value === id) {
     activeTabId.value = tabs.value.length > 0 ? tabs.value[tabs.value.length - 1].id : null;
     if (activeTabId.value) {
-      const tab = tabs.value.find((t) => t.id === activeTabId.value);
-      editorContent.value = tab?.content ?? "";
+      const nextTab = tabs.value.find((t) => t.id === activeTabId.value);
+      editorContent.value = nextTab?.content ?? "";
     }
   }
 };
@@ -82,7 +92,12 @@ const handleSave = () => {
 };
 
 const handleNewTab = () => {
-  chapterStore.createChapter("default", "未命名章节").then((chapter) => {
+  const projectId = projectStore.currentProject?.id;
+  if (!projectId) {
+    alert("请先打开一个项目");
+    return;
+  }
+  chapterStore.createChapter(projectId, "未命名章节").then((chapter) => {
     openTab(chapter.id, chapter.title);
   });
 };
