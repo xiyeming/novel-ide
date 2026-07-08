@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { ref, onUnmounted } from "vue";
 import MonacoEditor from "../editor/MonacoEditor.vue";
+import VersionHistory from "../editor/VersionHistory.vue";
 import { useChapterStore } from "../../stores/chapter";
 import { useProjectStore } from "../../stores/project";
 
@@ -17,6 +18,8 @@ const projectStore = useProjectStore();
 const tabs = ref<Tab[]>([]);
 const activeTabId = ref<string | null>(null);
 const editorContent = ref("");
+const versionHistoryVisible = ref(false);
+const versionHistoryRef = ref<InstanceType<typeof VersionHistory> | null>(null);
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
 onUnmounted(() => {
@@ -102,6 +105,22 @@ const handleNewTab = () => {
   });
 };
 
+const toggleVersionHistory = () => {
+  versionHistoryVisible.value = !versionHistoryVisible.value;
+  if (versionHistoryVisible.value) {
+    setTimeout(() => versionHistoryRef.value?.fetchVersions(), 50);
+  }
+};
+
+const handleVersionRestored = (content: string) => {
+  editorContent.value = content;
+  const tab = getActiveTab();
+  if (tab) {
+    tab.content = content;
+    tab.dirty = false;
+  }
+};
+
 // Expose openTab for external callers
 defineExpose({ openTab });
 </script>
@@ -120,21 +139,39 @@ defineExpose({ openTab });
         <button class="tab-close" @click.stop="closeTab(tab.id)">×</button>
       </div>
     </div>
-    <div class="editor-content">
-      <div v-if="!activeTabId" class="welcome-screen">
-        <div class="welcome-icon">📖</div>
-        <h2>Novel IDE</h2>
-        <p>专业小说创作 IDE</p>
-        <div class="welcome-actions">
-          <button class="action-btn" @click="handleNewTab">新建章节</button>
-          <button class="action-btn secondary">打开项目</button>
+    <div v-if="activeTabId" class="editor-toolbar">
+      <button
+        :class="['toolbar-btn', { active: versionHistoryVisible }]"
+        @click="toggleVersionHistory"
+        title="版本历史"
+      >
+        🕐
+      </button>
+    </div>
+    <div class="editor-body">
+      <div class="editor-content">
+        <div v-if="!activeTabId" class="welcome-screen">
+          <div class="welcome-icon">📖</div>
+          <h2>Novel IDE</h2>
+          <p>专业小说创作 IDE</p>
+          <div class="welcome-actions">
+            <button class="action-btn" @click="handleNewTab">新建章节</button>
+            <button class="action-btn secondary">打开项目</button>
+          </div>
         </div>
+        <MonacoEditor
+          v-else
+          :modelValue="editorContent"
+          @update:modelValue="handleContentChange"
+          @save="handleSave"
+        />
       </div>
-      <MonacoEditor
-        v-else
-        :modelValue="editorContent"
-        @update:modelValue="handleContentChange"
-        @save="handleSave"
+      <VersionHistory
+        v-if="versionHistoryVisible && activeTabId"
+        ref="versionHistoryRef"
+        :chapterId="activeTabId"
+        :currentContent="editorContent"
+        @restored="handleVersionRestored"
       />
     </div>
   </div>
@@ -206,6 +243,45 @@ defineExpose({ openTab });
 }
 
 .editor-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 2px var(--spacing-sm);
+  height: 28px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.toolbar-btn:hover {
+  background: var(--bg-hover);
+}
+
+.toolbar-btn.active {
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.editor-body {
+  display: flex;
   flex: 1;
   overflow: hidden;
 }
