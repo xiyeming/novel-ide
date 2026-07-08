@@ -39,6 +39,9 @@ pub fn run() {
             commands::chapter::update_chapter,
             commands::chapter::delete_chapter,
             commands::search::search_chapters,
+            commands::version::save_version,
+            commands::version::list_versions,
+            commands::version::restore_version,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
