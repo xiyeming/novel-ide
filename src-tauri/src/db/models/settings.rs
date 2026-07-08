@@ -1,4 +1,6 @@
 // src-tauri/src/db/models/settings.rs
+#![allow(dead_code)]
+
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
