@@ -1,18 +1,25 @@
+// src-tauri/src/error.rs
 use serde::Serialize;
 
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
-    #[error("Database error: {0}")]
-    Database(String),
+    #[error("数据库错误: {0}")]
+    Database(#[from] sqlx::Error),
 
-    #[error("IO error: {0}")]
-    Io(String),
+    #[error("序列化错误: {0}")]
+    Serialization(#[from] serde_json::Error),
 
-    #[error("JSON error: {0}")]
-    Json(String),
+    #[error("IO 错误: {0}")]
+    Io(#[from] std::io::Error),
 
-    #[error("Not found: {0}")]
-    NotFound(String),
+    #[error("项目不存在: {0}")]
+    ProjectNotFound(String),
+
+    #[error("参数错误: {0}")]
+    InvalidArgument(String),
+
+    #[error("内部错误: {0}")]
+    Internal(String),
 }
 
 impl Serialize for AppError {
@@ -23,3 +30,5 @@ impl Serialize for AppError {
         serializer.serialize_str(&self.to_string())
     }
 }
+
+pub type AppResult<T> = Result<T, AppError>;
