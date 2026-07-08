@@ -1,38 +1,95 @@
-use crate::db::models::{CreateProjectRequest, Project};
-use crate::error::AppError;
+use crate::db::models::project::{CreateProjectRequest, Project};
+use crate::error::AppResult;
 use crate::state::AppState;
+use tauri::State;
 
 #[tauri::command]
 pub async fn create_project(
-    state: tauri::State<'_, AppState>,
-    request: CreateProjectRequest,
-) -> Result<Project, AppError> {
+    state: State<'_, AppState>,
+    name: String,
+    path: String,
+    genre: Option<String>,
+    sub_genre: Option<String>,
+    target_readers: Option<String>,
+    total_chapters: Option<i32>,
+    words_per_chapter: Option<i32>,
+    narrative_pov: Option<String>,
+    story_structure: Option<String>,
+) -> AppResult<Project> {
     let db = state.db().await?;
-    Project::create(&db, &request).await
+
+    // Validate project name
+    if name.is_empty() || name.len() > 50 {
+        return Err(crate::error::AppError::InvalidArgument(
+            "项目名称必须在 1-50 字之间".into(),
+        ));
+    }
+
+    // Check for invalid characters
+    let invalid_chars = ['/', '\\', ':', '*', '?', '"', '<', '>', '|'];
+    if name.chars().any(|c| invalid_chars.contains(&c)) {
+        return Err(crate::error::AppError::InvalidArgument(
+            "项目名称包含非法字符".into(),
+        ));
+    }
+
+    // Create project directory
+    let project_dir = std::path::Path::new(&path).join(&name);
+    std::fs::create_dir_all(&project_dir)?;
+
+    // Create subdirectories
+    for dir in &["chapters", "drafts", "final", "assets", "prompts", "hooks", "skills", "references", "rag", "export", "logs"] {
+        std::fs::create_dir_all(project_dir.join(dir))?;
+    }
+
+    let req = CreateProjectRequest {
+        name,
+        path: project_dir.to_string_lossy().to_string(),
+        genre,
+        sub_genre,
+        target_readers,
+        total_chapters,
+        words_per_chapter,
+        narrative_pov,
+        story_structure,
+    };
+
+    let project = Project::create(&db, &req).await?;
+    Ok(project)
 }
 
 #[tauri::command]
-pub async fn list_projects(
-    state: tauri::State<'_, AppState>,
-) -> Result<Vec<Project>, AppError> {
+pub async fn list_projects(state: State<'_, AppState>) -> AppResult<Vec<Project>> {
     let db = state.db().await?;
-    Project::list_all(&db).await
+    let projects = Project::list_all(&db).await?;
+    Ok(projects)
 }
 
 #[tauri::command]
 pub async fn open_project(
-    state: tauri::State<'_, AppState>,
-    id: String,
-) -> Result<Project, AppError> {
+    state: State<'_, AppState>,
+    project_id: String,
+) -> AppResult<Project> {
     let db = state.db().await?;
-    Project::find_by_id(&db, &id).await
+    let project = Project::find_by_id(&db, &project_id).await?;
+    Ok(project)
 }
 
 #[tauri::command]
 pub async fn delete_project(
-    state: tauri::State<'_, AppState>,
-    id: String,
-) -> Result<(), AppError> {
+    state: State<'_, AppState>,
+    project_id: String,
+) -> AppResult<()> {
     let db = state.db().await?;
-    Project::delete(&db, &id).await
+
+    // Get project path before deletion
+    let project = Project::find_by_id(&db, &project_id).await?;
+
+    // Delete from database
+    Project::delete(&db, &project_id).await?;
+
+    // Delete project directory
+    let _ = std::fs::remove_dir_all(&project.path);
+
+    Ok(())
 }

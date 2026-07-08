@@ -1,28 +1,24 @@
-use std::collections::HashMap;
-
-use crate::db::models::GlobalSetting;
-use crate::error::AppError;
+use crate::db::models::settings::GlobalSetting;
+use crate::error::AppResult;
 use crate::state::AppState;
+use serde_json::Value;
+use tauri::State;
 
 #[tauri::command]
-pub async fn get_settings(
-    state: tauri::State<'_, AppState>,
-) -> Result<HashMap<String, String>, AppError> {
+pub async fn get_settings(state: State<'_, AppState>) -> AppResult<Vec<GlobalSetting>> {
     let db = state.db().await?;
     let settings = GlobalSetting::get_all(&db).await?;
-
-    Ok(settings
-        .into_iter()
-        .filter_map(|s| s.value.map(|v| (s.key, v)))
-        .collect())
+    Ok(settings)
 }
 
 #[tauri::command]
 pub async fn update_settings(
-    state: tauri::State<'_, AppState>,
+    state: State<'_, AppState>,
     key: String,
-    value: String,
-) -> Result<(), AppError> {
+    value: Value,
+) -> AppResult<()> {
     let db = state.db().await?;
-    GlobalSetting::set(&db, &key, &value).await
+    let value_str = serde_json::to_string(&value)?;
+    GlobalSetting::set(&db, &key, &value_str).await?;
+    Ok(())
 }
