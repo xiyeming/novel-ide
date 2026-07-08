@@ -23,7 +23,7 @@ export const useSearchStore = defineStore("search", () => {
     }
     loading.value = true;
     try {
-      results.value = await call<SearchResult[]>("search_chapters", {
+      results.value = await call<SearchResult[]>("searchChapters", {
         projectId,
         query: q,
       });
