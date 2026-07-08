@@ -7,6 +7,10 @@ import EditorPanel from "./EditorPanel.vue";
 import AIPanel from "./AIPanel.vue";
 import BottomPanel from "./BottomPanel.vue";
 
+const emit = defineEmits<{
+  back: [];
+}>();
+
 const sidebarWidth = ref(260);
 const aiPanelWidth = ref(320);
 const bottomPanelHeight = ref(200);
@@ -46,7 +50,7 @@ window.addEventListener("mouseup", onMouseUp);
 
 <template>
   <div class="ide-layout">
-    <TitleBar />
+    <TitleBar @back="emit('back')" />
     <div class="ide-main">
       <div class="ide-sidebar" :style="{ width: `${sidebarWidth}px` }">
         <Sidebar />

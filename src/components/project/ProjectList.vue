@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useProjectStore } from "../../stores/project";
+import NewProject from "./NewProject.vue";
 
 const store = useProjectStore();
 const showNewDialog = ref(false);

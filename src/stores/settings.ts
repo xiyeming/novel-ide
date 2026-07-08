@@ -23,7 +23,7 @@ export const useSettingsStore = defineStore("settings", () => {
   };
 
   const updateSetting = async (key: string, value: string) => {
-    await call("update_settings", { key, value: JSON.stringify(value) });
+    await call("update_settings", { key, value });
     settings.value.set(key, value);
   };
 

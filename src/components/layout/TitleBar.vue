@@ -2,6 +2,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
+const emit = defineEmits<{
+  back: [];
+}>();
+
 const isMaximized = ref(false);
 
 const minimize = async () => {
@@ -29,6 +33,9 @@ const close = async () => {
 <template>
   <div data-tauri-drag-region class="titlebar">
     <div class="titlebar-title" data-tauri-drag-region>
+      <button class="titlebar-btn back-btn" @click="emit('back')" title="返回项目列表">
+        <svg width="12" height="12" viewBox="0 0 12 12"><path d="M8 1L3 6L8 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </button>
       <span class="app-icon">📖</span>
       <span>Novel IDE</span>
     </div>
