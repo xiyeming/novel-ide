@@ -1,9 +1,26 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import IDELayout from "./components/layout/IDELayout.vue";
+import ProjectList from "./components/project/ProjectList.vue";
+import { useProjectStore } from "./stores/project";
+
+const projectStore = useProjectStore();
+const showIDE = ref(false);
+
+const openProject = async (projectId: string) => {
+  await projectStore.openProject(projectId);
+  showIDE.value = true;
+};
+
+const backToHome = () => {
+  showIDE.value = false;
+  projectStore.currentProject = null;
+};
 </script>
 
 <template>
-  <IDELayout />
+  <ProjectList v-if="!showIDE" @open-project="openProject" />
+  <IDELayout v-else @back="backToHome" />
 </template>
 
 <style>
