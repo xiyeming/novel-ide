@@ -27,8 +27,8 @@ pub async fn init_database(app: &AppHandle) -> Result<SqlitePool, crate::error::
         .connect_with(options)
         .await?;
 
-    // Run migrations
-    sqlx::query(include_str!("../../migrations/001_initial.sql"))
+    // Run migrations — raw_sql executes all statements in the file
+    sqlx::raw_sql(include_str!("../../migrations/001_initial.sql"))
         .execute(&pool)
         .await?;
 
