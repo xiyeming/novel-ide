@@ -81,6 +81,12 @@ function applyResult() {
     result.value = ''
   }
 }
+
+defineExpose({ selectFeature })
+
+function selectFeature(feature: string) {
+  selectedFeature.value = feature
+}
 </script>
 
 <template>

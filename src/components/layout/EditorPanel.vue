@@ -7,6 +7,7 @@ import ProofreadPanel from "../editor/ProofreadPanel.vue";
 import ExportDialog from "../editor/ExportDialog.vue";
 import { useChapterStore } from "../../stores/chapter";
 import { useProjectStore } from "../../stores/project";
+import { useAIStore } from "../../stores/ai";
 
 interface Tab {
   id: string;
@@ -17,6 +18,7 @@ interface Tab {
 
 const chapterStore = useChapterStore();
 const projectStore = useProjectStore();
+const aiStore = useAIStore();
 const tabs = ref<Tab[]>([]);
 const activeTabId = ref<string | null>(null);
 const editorContent = ref("");
@@ -206,6 +208,42 @@ defineExpose({ openTab });
       >
         📦
       </button>
+      <div class="toolbar-separator" />
+      <button
+        class="toolbar-btn ai-btn"
+        @click="aiStore.setActiveFeature('continue')"
+        title="续写"
+      >
+        ✍️
+      </button>
+      <button
+        class="toolbar-btn ai-btn"
+        @click="aiStore.setActiveFeature('rewrite')"
+        title="改写"
+      >
+        🔄
+      </button>
+      <button
+        class="toolbar-btn ai-btn"
+        @click="aiStore.setActiveFeature('expand')"
+        title="扩写"
+      >
+        📝
+      </button>
+      <button
+        class="toolbar-btn ai-btn"
+        @click="aiStore.setActiveFeature('condense')"
+        title="缩写"
+      >
+        ✂️
+      </button>
+      <button
+        class="toolbar-btn ai-btn"
+        @click="aiStore.setActiveFeature('style')"
+        title="风格"
+      >
+        🎨
+      </button>
     </div>
     <div class="editor-body">
       <div class="editor-content">
@@ -353,6 +391,22 @@ defineExpose({ openTab });
 .toolbar-btn.active {
   background: var(--bg-surface);
   box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 16px;
+  background: var(--border);
+  margin: 0 2px;
+}
+
+.ai-btn {
+  font-size: 13px;
+}
+
+.ai-btn:hover {
+  background: var(--accent);
+  color: var(--bg-primary);
 }
 
 .editor-body {

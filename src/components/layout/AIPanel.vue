@@ -1,6 +1,6 @@
 <!-- src/components/layout/AIPanel.vue -->
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
@@ -10,6 +10,15 @@ import AIWritePanel from "../ai/AIWritePanel.vue";
 const aiStore = useAIStore();
 const input = ref("");
 const activeTab = ref<"chat" | "write">("chat");
+const writePanelRef = ref<InstanceType<typeof AIWritePanel> | null>(null);
+
+watch(() => aiStore.activeAIFeature, (feature) => {
+  if (feature) {
+    activeTab.value = "write";
+    writePanelRef.value?.selectFeature(feature);
+    aiStore.clearActiveFeature();
+  }
+});
 
 const models = [
   { value: "deepseek-chat", label: "DeepSeek Chat" },
@@ -127,7 +136,7 @@ const sendMessage = () => {
     </template>
 
     <template v-else>
-      <AIWritePanel />
+      <AIWritePanel ref="writePanelRef" />
     </template>
   </div>
 </template>

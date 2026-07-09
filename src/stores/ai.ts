@@ -16,6 +16,15 @@ export const useAIStore = defineStore("ai", () => {
   const messages = ref<Message[]>([]);
   const selectedModel = ref<string>("deepseek-chat");
   const streaming = ref(false);
+  const activeAIFeature = ref<string | null>(null);
+
+  function setActiveFeature(feature: string) {
+    activeAIFeature.value = feature;
+  }
+
+  function clearActiveFeature() {
+    activeAIFeature.value = null;
+  }
 
   const addMessage = (role: "user" | "assistant", content: string) => {
     messages.value.push({
@@ -103,6 +112,9 @@ export const useAIStore = defineStore("ai", () => {
     messages,
     selectedModel,
     streaming,
+    activeAIFeature,
+    setActiveFeature,
+    clearActiveFeature,
     addMessage,
     clearMessages,
     sendMessage,
