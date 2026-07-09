@@ -58,7 +58,7 @@ const tabs = [
   { id: "config" as const, icon: "📝", label: "配置" },
   { id: "model" as const, icon: "🤖", label: "模型" },
   { id: "workflow" as const, icon: "⚙️", label: "工作流" },
-  { id: "agent" as const, icon: "🤖", label: "智能体" },
+  { id: "agent" as const, icon: "🧠", label: "智能体" },
   { id: "settings" as const, icon: "⚙️", label: "设置" },
 ];
 
