@@ -81,27 +81,24 @@ const submit = async () => {
   errorMsg.value = "";
   try {
     // Debug: log all form values with detailed info
-    console.log("DEBUG: form.value.name =", form.value.name);
-    console.log("DEBUG: form.value.parentPath =", form.value.parentPath);
-    console.log("DEBUG: form.value.genre =", form.value.genre);
     console.log("DEBUG: form.value.narrative_pov =", form.value.narrative_pov);
     console.log("DEBUG: form.value.total_chapters =", form.value.total_chapters);
     console.log("DEBUG: form.value.words_per_chapter =", form.value.words_per_chapter);
     console.log("DEBUG: form.value.story_structure =", form.value.story_structure);
     
-    // Send all form values directly without filtering
+    // Try sending with camelCase keys to test Tauri IPC conversion
     const projectData = {
       name: form.value.name,
       path: form.value.parentPath,
       genre: form.value.genre,
-      sub_genre: form.value.sub_genre,
-      target_readers: form.value.target_readers,
-      total_chapters: form.value.total_chapters,
-      words_per_chapter: form.value.words_per_chapter,
-      narrative_pov: form.value.narrative_pov,
-      story_structure: form.value.story_structure,
+      subGenre: form.value.sub_genre,
+      targetReaders: form.value.target_readers,
+      totalChapters: form.value.total_chapters,
+      wordsPerChapter: form.value.words_per_chapter,
+      narrativePov: form.value.narrative_pov,
+      storyStructure: form.value.story_structure,
     };
-    console.log("DEBUG: Sending project data:", JSON.stringify(projectData, null, 2));
+    console.log("DEBUG: Sending project data (camelCase):", JSON.stringify(projectData, null, 2));
     
     await store.createProject(projectData);
     emit("close");

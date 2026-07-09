@@ -45,11 +45,17 @@ export const useProjectStore = defineStore("project", () => {
     path: string;
     genre?: string;
     sub_genre?: string;
+    subGenre?: string;
     target_readers?: string;
+    targetReaders?: string;
     total_chapters?: number;
+    totalChapters?: number;
     words_per_chapter?: number;
+    wordsPerChapter?: number;
     narrative_pov?: string;
+    narrativePov?: string;
     story_structure?: string;
+    storyStructure?: string;
   }) => {
     const project = await call<Project>("create_project", params);
     projects.value.unshift(project);
