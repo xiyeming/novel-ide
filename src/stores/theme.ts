@@ -16,10 +16,8 @@ const defaultThemeConfig: Record<string, string> = {
   "--bg-tertiary": "#334155",
   "--text-primary": "#f8fafc",
   "--text-secondary": "#94a3b8",
-  "--accent-primary": "#3b82f6",
-  "--accent-secondary": "#60a5fa",
-  "--border-color": "#334155",
-  "--shadow-color": "rgba(0,0,0,0.3)",
+  "--accent": "#3b82f6",
+  "--border": "#334155",
 };
 
 export const useThemeStore = defineStore("theme", () => {
