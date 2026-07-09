@@ -7,6 +7,7 @@ mod state;
 
 use state::AppState;
 use tauri::Manager;
+use crate::error::AppError;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -17,15 +18,60 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .manage(AppState::default())
         .setup(|app| {
             let handle = app.handle().clone();
-            tauri::async_runtime::block_on(async move {
+            let _: Result<(), AppError> = tauri::async_runtime::block_on(async move {
                 let db = db::init_database(&handle).await?;
                 let state = app.state::<AppState>();
                 state.set_db(db).await;
                 Ok(())
-            })
+            });
+
+            #[cfg(any(target_os = "windows", target_os = "macos"))]
+            {
+                use tauri_plugin_global_shortcut::GlobalShortcutExt;
+                let app_handle = app.handle().clone();
+                let state = app.state::<AppState>();
+                let db_ref: Result<sqlx::SqlitePool, AppError> = tauri::async_runtime::block_on(async {
+                    state.db().await
+                });
+
+                if let Ok(db) = db_ref {
+                    let rows = tauri::async_runtime::block_on(async {
+                        sqlx::query("SELECT * FROM shortcuts WHERE is_enabled = 1")
+                            .fetch_all(&db)
+                            .await
+                    });
+
+                    if let Ok(rows) = rows {
+                        for row in rows {
+                            let action: String = row.get("action");
+                            let key_binding: String = row.get("key_binding");
+                            let app_handle_clone = app_handle.clone();
+                            let action_clone = action.clone();
+
+                            let shortcut = key_binding.parse::<tauri_plugin_global_shortcut::Shortcut>();
+                            if let Ok(shortcut) = shortcut {
+                                let _ = app_handle.global_shortcut().on_shortcut(
+                                    shortcut,
+                                    move |_app, _shortcut, event| {
+                                        log::info!("Shortcut triggered: {} - {:?}", action_clone, event);
+                                    },
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+
+            #[cfg(target_os = "linux")]
+            {
+                log::info!("Linux detected: Use Hyprland config generation for shortcuts");
+            }
+
+            Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             commands::ai::chat_stream,
