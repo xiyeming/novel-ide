@@ -54,6 +54,7 @@ pub fn run() {
             commands::export::export_all_chapters,
             commands::export::export_docx,
             commands::export::export_pdf,
+            commands::export::export_epub,
             commands::knowledge::import_knowledge,
             commands::knowledge::list_knowledge,
             commands::knowledge::delete_knowledge,

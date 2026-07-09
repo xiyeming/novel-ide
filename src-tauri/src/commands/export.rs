@@ -102,3 +102,21 @@ pub async fn export_pdf(
 
     Ok(())
 }
+
+#[tauri::command]
+pub async fn export_epub(
+    state: State<'_, AppState>,
+    chapter_id: String,
+    output_path: String,
+    author: Option<String>,
+) -> AppResult<()> {
+    let db = state.db().await?;
+
+    let chapter = crate::db::models::chapter::Chapter::find_by_id(&db, &chapter_id).await?;
+
+    let author_str = author.unwrap_or_default();
+
+    crate::services::export_epub::export_epub(&chapter.content, &output_path, &chapter.title, &author_str)?;
+
+    Ok(())
+}
