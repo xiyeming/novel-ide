@@ -61,6 +61,10 @@ pub fn run() {
             commands::workflow::delete_workflow,
             commands::workflow::execute_workflow,
             commands::workflow::get_workflow_execution,
+            commands::agent::create_agent,
+            commands::agent::list_agents,
+            commands::agent::update_agent,
+            commands::agent::delete_agent,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
