@@ -92,6 +92,8 @@ pub fn run() {
             commands::chapter::get_chapter,
             commands::chapter::update_chapter,
             commands::chapter::delete_chapter,
+            commands::chapter::read_chapter_chunk,
+            commands::chapter::get_chapter_file_info,
             commands::search::search_chapters,
             commands::version::save_version,
             commands::version::list_versions,

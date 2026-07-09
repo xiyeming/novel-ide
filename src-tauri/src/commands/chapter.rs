@@ -1,5 +1,6 @@
 use crate::db::models::chapter::{Chapter, CreateChapterRequest, UpdateChapterRequest};
 use crate::error::AppResult;
+use crate::services::performance::PerformanceService;
 use crate::state::AppState;
 use tauri::State;
 
@@ -68,4 +69,23 @@ pub async fn delete_chapter(
     let db = state.db().await?;
     Chapter::delete(&db, &chapter_id).await?;
     Ok(())
+}
+
+#[tauri::command]
+pub async fn read_chapter_chunk(
+    file_path: String,
+    start_line: usize,
+    max_lines: usize,
+) -> AppResult<String> {
+    let service = PerformanceService::new();
+    let content = service.read_file_chunk(&file_path, start_line, max_lines)?;
+    Ok(content)
+}
+
+#[tauri::command]
+pub async fn get_chapter_file_info(file_path: String) -> AppResult<(usize, u64)> {
+    let service = PerformanceService::new();
+    let line_count = service.count_lines(&file_path)?;
+    let file_size = service.get_file_size(&file_path)?;
+    Ok((line_count, file_size))
 }

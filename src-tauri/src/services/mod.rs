@@ -4,4 +4,5 @@ pub mod export_docx;
 pub mod export_epub;
 pub mod export_pdf;
 pub mod hyprland;
+pub mod performance;
 pub mod workflow_engine;
