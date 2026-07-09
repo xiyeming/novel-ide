@@ -1,21 +1,18 @@
-<!-- src/components/layout/ActivityBar.vue -->
 <script setup lang="ts">
-type ViewType = 'explorer' | 'search' | 'ai' | 'plugins' | 'settings';
-
 defineProps<{
-  activeView: ViewType;
+  activeView: string;
 }>();
 
 const emit = defineEmits<{
-  select: [view: ViewType];
+  select: [view: string];
 }>();
 
-const views: { id: ViewType; icon: string; label: string }[] = [
-  { id: "explorer", icon: "📁", label: "资源管理器" },
-  { id: "search", icon: "🔍", label: "搜索" },
-  { id: "ai", icon: "🤖", label: "AI" },
-  { id: "plugins", icon: "🧩", label: "插件" },
-  { id: "settings", icon: "⚙️", label: "设置" },
+const views = [
+  { id: 'explorer', icon: '📁', label: 'Explorer' },
+  { id: 'search', icon: '🔍', label: 'Search' },
+  { id: 'ai', icon: '🤖', label: 'AI' },
+  { id: 'plugins', icon: '🧩', label: 'Plugins' },
+  { id: 'settings', icon: '⚙️', label: 'Settings' },
 ];
 </script>
 
@@ -24,7 +21,7 @@ const views: { id: ViewType; icon: string; label: string }[] = [
     <button
       v-for="view in views"
       :key="view.id"
-      :class="['activity-btn', { active: activeView === view.id }]"
+      :class="['activity-item', { active: activeView === view.id }]"
       @click="emit('select', view.id)"
       :title="view.label"
     >
@@ -38,16 +35,14 @@ const views: { id: ViewType; icon: string; label: string }[] = [
   display: flex;
   flex-direction: column;
   width: 56px;
-  flex-shrink: 0;
-  background: var(--bg-background);
+  background: var(--bg-sidebar);
   border-right: 1px solid var(--border-default);
 }
 
-.activity-btn {
+.activity-item {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
   height: 56px;
   background: none;
   border: none;
@@ -56,16 +51,16 @@ const views: { id: ViewType; icon: string; label: string }[] = [
   transition: all var(--duration-fast) var(--ease-out);
 }
 
-.activity-btn:hover {
+.activity-item:hover {
   background: var(--bg-hover);
 }
 
-.activity-btn.active {
+.activity-item.active {
   border-left-color: var(--blue-500);
   background: var(--bg-panel);
 }
 
 .activity-icon {
-  font-size: 22px;
+  font-size: 20px;
 }
 </style>

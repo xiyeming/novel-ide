@@ -26,7 +26,7 @@ const viewToTab: Record<ViewType, SidebarTab> = {
 };
 
 const props = defineProps<{
-  view?: ViewType;
+  view?: string;
 }>();
 
 const emit = defineEmits<{
@@ -36,8 +36,8 @@ const emit = defineEmits<{
 const activeTab = ref<SidebarTab>("files");
 
 watch(() => props.view, (newView) => {
-  if (newView) {
-    activeTab.value = viewToTab[newView];
+  if (newView && newView in viewToTab) {
+    activeTab.value = viewToTab[newView as ViewType];
   }
 }, { immediate: true });
 const chapterStore = useChapterStore();

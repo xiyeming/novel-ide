@@ -24,10 +24,9 @@ const sidebarWidth = ref(280);
 const aiStudioWidth = ref(420);
 const bottomPanelHeight = ref(200);
 
-type ViewType = 'explorer' | 'search' | 'ai' | 'plugins' | 'settings';
 type InspectorType = 'chapter' | 'character' | 'world' | 'prompt' | 'workflow';
 
-const activeView = ref<ViewType>('explorer');
+const activeView = ref<string>('explorer');
 const sidebarVisible = ref(true);
 const aiStudioVisible = ref(true);
 const bottomPanelVisible = ref(false);
