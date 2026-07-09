@@ -8,12 +8,13 @@ import ProjectConfig from "../project/ProjectConfig.vue";
 import ModelManager from "../settings/ModelManager.vue";
 import KnowledgePanel from "../knowledge/KnowledgePanel.vue";
 import WorkflowPanel from "../workflow/WorkflowPanel.vue";
+import AgentPanel from "../agent/AgentPanel.vue";
 
 const emit = defineEmits<{
   openChapter: [chapterId: string];
 }>();
 
-const activeTab = ref<"files" | "search" | "knowledge" | "config" | "model" | "workflow" | "settings">("files");
+const activeTab = ref<"files" | "search" | "knowledge" | "config" | "model" | "workflow" | "agent" | "settings">("files");
 const chapterStore = useChapterStore();
 const projectStore = useProjectStore();
 const searchStore = useSearchStore();
@@ -57,6 +58,7 @@ const tabs = [
   { id: "config" as const, icon: "📝", label: "配置" },
   { id: "model" as const, icon: "🤖", label: "模型" },
   { id: "workflow" as const, icon: "⚙️", label: "工作流" },
+  { id: "agent" as const, icon: "🤖", label: "智能体" },
   { id: "settings" as const, icon: "⚙️", label: "设置" },
 ];
 
@@ -245,6 +247,9 @@ const formatWordCount = (count: number) => {
       </div>
       <div v-else-if="activeTab === 'workflow'" class="tab-panel">
         <WorkflowPanel />
+      </div>
+      <div v-else-if="activeTab === 'agent'" class="tab-panel">
+        <AgentPanel />
       </div>
       <div v-else-if="activeTab === 'settings'" class="tab-panel">
         <div class="panel-header-sm">设置</div>
