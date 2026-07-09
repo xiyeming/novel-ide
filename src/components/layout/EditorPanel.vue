@@ -3,6 +3,7 @@
 import { ref, onUnmounted } from "vue";
 import MonacoEditor from "../editor/MonacoEditor.vue";
 import VersionHistory from "../editor/VersionHistory.vue";
+import ProofreadPanel from "../editor/ProofreadPanel.vue";
 import ExportDialog from "../editor/ExportDialog.vue";
 import { useChapterStore } from "../../stores/chapter";
 import { useProjectStore } from "../../stores/project";
@@ -21,6 +22,8 @@ const activeTabId = ref<string | null>(null);
 const editorContent = ref("");
 const versionHistoryVisible = ref(false);
 const versionHistoryRef = ref<InstanceType<typeof VersionHistory> | null>(null);
+const proofreadVisible = ref(false);
+const proofreadRef = ref<InstanceType<typeof ProofreadPanel> | null>(null);
 const exportDialogVisible = ref(false);
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -114,6 +117,36 @@ const toggleVersionHistory = () => {
   }
 };
 
+const toggleProofread = () => {
+  proofreadVisible.value = !proofreadVisible.value;
+};
+
+const handleProofreadFix = (error: { original: string; suggestion: string; line: number; column: number }) => {
+  const lines = editorContent.value.split("\n");
+  if (error.line > 0 && error.line <= lines.length) {
+    const line = lines[error.line - 1];
+    const newLine = line.replace(error.original, error.suggestion);
+    lines[error.line - 1] = newLine;
+    editorContent.value = lines.join("\n");
+    handleContentChange(editorContent.value);
+  }
+};
+
+const handleProofreadFixAll = (errors: Array<{ original: string; suggestion: string; line: number; column: number }>) => {
+  let content = editorContent.value;
+  for (const error of errors) {
+    content = content.replace(error.original, error.suggestion);
+  }
+  editorContent.value = content;
+  handleContentChange(content);
+};
+
+const handleJumpToLine = (line: number) => {
+  // Monaco editor line navigation would be handled here
+  // For now, we just emit an event or scroll to approximate position
+  console.log("Jump to line:", line);
+};
+
 const handleVersionRestored = (content: string) => {
   editorContent.value = content;
   const tab = getActiveTab();
@@ -150,6 +183,13 @@ defineExpose({ openTab });
         🕐
       </button>
       <button
+        :class="['toolbar-btn', { active: proofreadVisible }]"
+        @click="toggleProofread"
+        title="校对"
+      >
+        🔍
+      </button>
+      <button
         class="toolbar-btn"
         @click="exportDialogVisible = true"
         title="导出"
@@ -181,6 +221,15 @@ defineExpose({ openTab });
         :chapterId="activeTabId"
         :currentContent="editorContent"
         @restored="handleVersionRestored"
+      />
+      <ProofreadPanel
+        v-if="proofreadVisible && activeTabId"
+        ref="proofreadRef"
+        :chapterId="activeTabId"
+        :content="editorContent"
+        @fix="handleProofreadFix"
+        @fixAll="handleProofreadFixAll"
+        @jumpToLine="handleJumpToLine"
       />
     </div>
     <ExportDialog

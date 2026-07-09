@@ -4,6 +4,7 @@ pub mod export;
 pub mod knowledge;
 pub mod model;
 pub mod project;
+pub mod proofread;
 pub mod search;
 pub mod settings;
 pub mod version;

@@ -54,6 +54,7 @@ pub fn run() {
             commands::knowledge::list_knowledge,
             commands::knowledge::delete_knowledge,
             commands::knowledge::search_knowledge,
+            commands::proofread::proofread_chapter,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
