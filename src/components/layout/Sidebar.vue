@@ -14,15 +14,32 @@ import ShortcutSettings from "../settings/ShortcutSettings.vue";
 import ThemeSettings from "../settings/ThemeSettings.vue";
 import SettingsPanel from "../settings/SettingsPanel.vue";
 
-defineProps<{
-  view?: string;
+type ViewType = 'explorer' | 'search' | 'ai' | 'plugins' | 'settings';
+type SidebarTab = "files" | "search" | "knowledge" | "config" | "model" | "workflow" | "agent" | "cloud" | "shortcut" | "theme" | "settings";
+
+const viewToTab: Record<ViewType, SidebarTab> = {
+  explorer: "files",
+  search: "search",
+  ai: "model",
+  plugins: "settings",
+  settings: "settings",
+};
+
+const props = defineProps<{
+  view?: ViewType;
 }>();
 
 const emit = defineEmits<{
   openChapter: [chapterId: string];
 }>();
 
-const activeTab = ref<"files" | "search" | "knowledge" | "config" | "model" | "workflow" | "agent" | "cloud" | "shortcut" | "theme" | "settings">("files");
+const activeTab = ref<SidebarTab>("files");
+
+watch(() => props.view, (newView) => {
+  if (newView) {
+    activeTab.value = viewToTab[newView];
+  }
+}, { immediate: true });
 const chapterStore = useChapterStore();
 const projectStore = useProjectStore();
 const searchStore = useSearchStore();

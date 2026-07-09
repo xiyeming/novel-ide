@@ -25,10 +25,14 @@ const aiStudioWidth = ref(420);
 const bottomPanelHeight = ref(200);
 
 type ViewType = 'explorer' | 'search' | 'ai' | 'plugins' | 'settings';
+type InspectorType = 'chapter' | 'character' | 'world' | 'prompt' | 'workflow';
+
 const activeView = ref<ViewType>('explorer');
 const sidebarVisible = ref(true);
 const aiStudioVisible = ref(true);
 const bottomPanelVisible = ref(false);
+const inspectorVisible = ref(false);
+const inspectorType = ref<InspectorType>('chapter');
 
 const breadcrumbItems = ref<string[]>([]);
 
@@ -82,6 +86,11 @@ const handleOpenChapter = (chapterId: string) => {
     editorPanelRef.value.openTab(chapter.id, chapter.title);
   }
 };
+
+defineExpose({
+  inspectorVisible,
+  inspectorType,
+});
 </script>
 
 <template>
@@ -110,7 +119,7 @@ const handleOpenChapter = (chapterId: string) => {
           class="resize-handle horizontal"
           @mousedown="onMouseDown('bottom', $event)"
         />
-        <BottomPanel v-if="bottomPanelVisible" :height="bottomPanelHeight" />
+        <BottomPanel v-if="bottomPanelVisible" />
       </div>
       <div
         v-if="aiStudioVisible"
