@@ -8,11 +8,11 @@ const emit = defineEmits<{
 }>();
 
 const views = [
-  { id: 'explorer', icon: '📁', label: 'Explorer' },
-  { id: 'search', icon: '🔍', label: 'Search' },
+  { id: 'explorer', icon: '📁', label: '资源管理器' },
+  { id: 'search', icon: '🔍', label: '搜索' },
   { id: 'ai', icon: '🤖', label: 'AI' },
-  { id: 'plugins', icon: '🧩', label: 'Plugins' },
-  { id: 'settings', icon: '⚙️', label: 'Settings' },
+  { id: 'plugins', icon: '🧩', label: '插件' },
+  { id: 'settings', icon: '⚙️', label: '设置' },
 ];
 </script>
 
