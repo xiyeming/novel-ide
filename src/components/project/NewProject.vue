@@ -80,8 +80,14 @@ const submit = async () => {
   submitting.value = true;
   errorMsg.value = "";
   try {
-    // Debug: log all form values
-    console.log("DEBUG: form.value =", JSON.stringify(form.value, null, 2));
+    // Debug: log all form values with detailed info
+    console.log("DEBUG: form.value.name =", form.value.name);
+    console.log("DEBUG: form.value.parentPath =", form.value.parentPath);
+    console.log("DEBUG: form.value.genre =", form.value.genre);
+    console.log("DEBUG: form.value.narrative_pov =", form.value.narrative_pov);
+    console.log("DEBUG: form.value.total_chapters =", form.value.total_chapters);
+    console.log("DEBUG: form.value.words_per_chapter =", form.value.words_per_chapter);
+    console.log("DEBUG: form.value.story_structure =", form.value.story_structure);
     
     // Send all form values directly without filtering
     const projectData = {
