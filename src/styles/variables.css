@@ -112,4 +112,25 @@
   --panel-min-height: 150px;
   --titlebar-height: 36px;
   --statusbar-height: 24px;
+
+  /* Semantic Colors (missing) */
+  --accent: var(--blue-500);
+  --text-primary: var(--gray-100);
+  --text-secondary: var(--gray-400);
+  --text-muted: var(--gray-500);
+
+  /* Background Aliases */
+  --bg-primary: var(--bg-background);
+  --bg-secondary: var(--bg-sidebar);
+  --bg-surface: var(--bg-panel);
+
+  /* Border */
+  --border: var(--border-default);
+
+  /* Spacing Aliases */
+  --spacing-xs: var(--spacing-1);
+  --spacing-sm: var(--spacing-2);
+  --spacing-md: var(--spacing-3);
+  --spacing-lg: var(--spacing-4);
+  --spacing-xl: var(--spacing-6);
 }
