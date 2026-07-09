@@ -80,6 +80,9 @@ const submit = async () => {
   submitting.value = true;
   errorMsg.value = "";
   try {
+    // Debug: log all form values
+    console.log("DEBUG: form.value =", JSON.stringify(form.value, null, 2));
+    
     // Send all form values directly without filtering
     const projectData = {
       name: form.value.name,
@@ -92,7 +95,7 @@ const submit = async () => {
       narrative_pov: form.value.narrative_pov,
       story_structure: form.value.story_structure,
     };
-    console.log("DEBUG: Sending project data:", projectData);
+    console.log("DEBUG: Sending project data:", JSON.stringify(projectData, null, 2));
     
     await store.createProject(projectData);
     emit("close");
