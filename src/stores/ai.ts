@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { useTauriIPC } from "../composables/useTauriIPC";
 
 interface Message {
   id: string;
@@ -11,6 +12,7 @@ interface Message {
 }
 
 export const useAIStore = defineStore("ai", () => {
+  const { call } = useTauriIPC();
   const messages = ref<Message[]>([]);
   const selectedModel = ref<string>("deepseek-chat");
   const streaming = ref(false);
@@ -77,6 +79,26 @@ export const useAIStore = defineStore("ai", () => {
     }
   };
 
+  async function continueWriting(content: string, providerId: string, style?: string) {
+    return await call<string>("continue_writing", { content, providerId, style });
+  }
+
+  async function rewriteContent(content: string, providerId: string, instruction: string) {
+    return await call<string>("rewrite_content", { content, providerId, instruction });
+  }
+
+  async function expandContent(content: string, providerId: string, targetWords?: number) {
+    return await call<string>("expand_content", { content, providerId, targetWords });
+  }
+
+  async function condenseContent(content: string, providerId: string) {
+    return await call<string>("condense_content", { content, providerId });
+  }
+
+  async function styleTransfer(content: string, providerId: string, targetStyle: string) {
+    return await call<string>("style_transfer", { content, providerId, targetStyle });
+  }
+
   return {
     messages,
     selectedModel,
@@ -84,5 +106,10 @@ export const useAIStore = defineStore("ai", () => {
     addMessage,
     clearMessages,
     sendMessage,
+    continueWriting,
+    rewriteContent,
+    expandContent,
+    condenseContent,
+    styleTransfer,
   };
 });
