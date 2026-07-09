@@ -52,6 +52,7 @@ pub fn run() {
             commands::model::test_connection,
             commands::export::export_chapter,
             commands::export::export_all_chapters,
+            commands::export::export_docx,
             commands::knowledge::import_knowledge,
             commands::knowledge::list_knowledge,
             commands::knowledge::delete_knowledge,
