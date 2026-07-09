@@ -1,5 +1,7 @@
 use crate::error::AppError;
-use reqwest::Client;
+use aliyun_oss::client::OSSClient;
+use aliyun_oss::types::region::Region;
+use reqwest::Client as ReqwestClient;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -35,14 +37,67 @@ pub enum CloudProviderConfig {
 }
 
 pub struct CloudSyncService {
-    client: Client,
+    client: ReqwestClient,
 }
 
 impl CloudSyncService {
     pub fn new() -> Self {
         Self {
-            client: Client::new(),
+            client: ReqwestClient::new(),
         }
+    }
+
+    pub async fn upload_to_oss(
+        &self,
+        endpoint: &str,
+        bucket: &str,
+        access_key: &str,
+        secret_key: &str,
+        local_path: &str,
+        remote_path: &str,
+    ) -> Result<(), AppError> {
+        let region = Region::custom(endpoint, "custom");
+        let client = OSSClient::builder()
+            .region(region)
+            .credentials(access_key, secret_key)
+            .build()
+            .map_err(|e| AppError::Internal(format!("OSS 客户端创建失败: {}", e)))?;
+        let bucket_ops = client.bucket(bucket)
+            .map_err(|e| AppError::Internal(format!("OSS Bucket 操作失败: {}", e)))?;
+        let data = std::fs::read(local_path)?;
+        bucket_ops.put_object(remote_path)
+            .map_err(|e| AppError::Internal(format!("OSS PutObject 创建失败: {}", e)))?
+            .body(data)
+            .send()
+            .await
+            .map_err(|e| AppError::Internal(format!("OSS 上传失败: {}", e)))?;
+        Ok(())
+    }
+
+    pub async fn download_from_oss(
+        &self,
+        endpoint: &str,
+        bucket: &str,
+        access_key: &str,
+        secret_key: &str,
+        remote_path: &str,
+        local_path: &str,
+    ) -> Result<(), AppError> {
+        let region = Region::custom(endpoint, "custom");
+        let client = OSSClient::builder()
+            .region(region)
+            .credentials(access_key, secret_key)
+            .build()
+            .map_err(|e| AppError::Internal(format!("OSS 客户端创建失败: {}", e)))?;
+        let bucket_ops = client.bucket(bucket)
+            .map_err(|e| AppError::Internal(format!("OSS Bucket 操作失败: {}", e)))?;
+        let output = bucket_ops.get_object(remote_path)
+            .map_err(|e| AppError::Internal(format!("OSS GetObject 创建失败: {}", e)))?
+            .send()
+            .await
+            .map_err(|e| AppError::Internal(format!("OSS 下载失败: {}", e)))?;
+        std::fs::write(local_path, output.body)?;
+        Ok(())
     }
 
     pub async fn upload_file(
@@ -67,7 +122,12 @@ impl CloudSyncService {
                 }
                 Ok(())
             }
-            _ => Err(AppError::Internal("暂不支持此云存储类型".into())),
+            CloudProviderConfig::OSS { endpoint, bucket, access_key, secret_key } => {
+                self.upload_to_oss(endpoint, bucket, access_key, secret_key, local_path, remote_path).await
+            }
+            CloudProviderConfig::S3 { .. } => {
+                Err(AppError::Internal("S3 暂未实现".into()))
+            }
         }
     }
 
@@ -94,7 +154,12 @@ impl CloudSyncService {
                 std::fs::write(local_path, bytes)?;
                 Ok(())
             }
-            _ => Err(AppError::Internal("暂不支持此云存储类型".into())),
+            CloudProviderConfig::OSS { endpoint, bucket, access_key, secret_key } => {
+                self.download_from_oss(endpoint, bucket, access_key, secret_key, remote_path, local_path).await
+            }
+            CloudProviderConfig::S3 { .. } => {
+                Err(AppError::Internal("S3 暂未实现".into()))
+            }
         }
     }
 }
