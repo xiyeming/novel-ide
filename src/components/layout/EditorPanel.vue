@@ -24,6 +24,7 @@ const versionHistoryVisible = ref(false);
 const versionHistoryRef = ref<InstanceType<typeof VersionHistory> | null>(null);
 const proofreadVisible = ref(false);
 const proofreadRef = ref<InstanceType<typeof ProofreadPanel> | null>(null);
+const monacoEditorRef = ref<InstanceType<typeof MonacoEditor> | null>(null);
 const exportDialogVisible = ref(false);
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -125,10 +126,16 @@ const handleProofreadFix = (error: { original: string; suggestion: string; line:
   const lines = editorContent.value.split("\n");
   if (error.line > 0 && error.line <= lines.length) {
     const line = lines[error.line - 1];
-    const newLine = line.replace(error.original, error.suggestion);
-    lines[error.line - 1] = newLine;
-    editorContent.value = lines.join("\n");
-    handleContentChange(editorContent.value);
+    const colIndex = Math.max(0, error.column - 1);
+    const segment = line.substring(colIndex);
+    const idx = segment.indexOf(error.original);
+    if (idx >= 0) {
+      const before = line.substring(0, colIndex + idx);
+      const after = line.substring(colIndex + idx + error.original.length);
+      lines[error.line - 1] = before + error.suggestion + after;
+      editorContent.value = lines.join("\n");
+      handleContentChange(editorContent.value);
+    }
   }
 };
 
@@ -142,9 +149,12 @@ const handleProofreadFixAll = (errors: Array<{ original: string; suggestion: str
 };
 
 const handleJumpToLine = (line: number) => {
-  // Monaco editor line navigation would be handled here
-  // For now, we just emit an event or scroll to approximate position
-  console.log("Jump to line:", line);
+  const editorInstance = monacoEditorRef.value?.editor;
+  if (editorInstance) {
+    editorInstance.revealLineInCenter(line);
+    editorInstance.setPosition({ lineNumber: line, column: 1 });
+    editorInstance.focus();
+  }
 };
 
 const handleVersionRestored = (content: string) => {
@@ -210,6 +220,7 @@ defineExpose({ openTab });
         </div>
         <MonacoEditor
           v-else
+          ref="monacoEditorRef"
           :modelValue="editorContent"
           @update:modelValue="handleContentChange"
           @save="handleSave"

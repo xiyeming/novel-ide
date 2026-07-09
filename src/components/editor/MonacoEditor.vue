@@ -62,6 +62,8 @@ watch(
     setReadOnly(newVal);
   }
 );
+
+defineExpose({ editor });
 </script>
 
 <template>
