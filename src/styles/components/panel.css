@@ -1,0 +1,54 @@
+/* Panel Component Styles */
+.panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  padding: 0 var(--spacing-3);
+  border-bottom: 1px solid var(--border-default);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.panel-content {
+  flex: 1;
+  padding: var(--spacing-3);
+  overflow-y: auto;
+}
+
+.panel-resize-handle {
+  width: 4px;
+  background: transparent;
+  cursor: col-resize;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.panel-resize-handle:hover {
+  background: var(--blue-500);
+}
+
+.panel-resize-handle.horizontal {
+  width: 100%;
+  height: 4px;
+  cursor: row-resize;
+}
+
+/* Panel States */
+.panel.collapsed {
+  width: 0;
+  opacity: 0;
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.panel.expanded {
+  opacity: 1;
+  transition: all var(--duration-normal) var(--ease-out);
+}

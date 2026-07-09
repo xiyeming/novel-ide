@@ -1,0 +1,46 @@
+/* Input Component Styles */
+.input {
+  width: 100%;
+  background: #232A36;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-2) var(--spacing-3);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-md);
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.input:hover {
+  background: #2A3442;
+}
+
+.input:focus {
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.2);
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--gray-500);
+}
+
+/* Textarea */
+.textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Search */
+.input-search {
+  padding-left: var(--spacing-8);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c7086' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: var(--spacing-3) center;
+}
+
+/* Error */
+.input-error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(250, 82, 82, 0.2);
+}

@@ -1,0 +1,49 @@
+/* Tree Component Styles */
+.tree {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+}
+
+.tree-node {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out);
+  user-select: none;
+}
+
+.tree-node:hover {
+  background: var(--bg-hover);
+}
+
+.tree-node.selected {
+  background: var(--blue-500);
+  color: white;
+}
+
+.tree-node-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.tree-node-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.tree-node-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-children {
+  padding-left: var(--spacing-4);
+}
