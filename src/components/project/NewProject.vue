@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useProjectStore } from "../../stores/project";
 
 const emit = defineEmits<{ close: [] }>();
@@ -7,7 +7,8 @@ const store = useProjectStore();
 
 const form = ref({
   name: "",
-  path: "",
+  parentPath: "",
+  description: "",
   genre: "",
   sub_genre: "",
   target_readers: "",
@@ -25,6 +26,13 @@ const submitting = ref(false);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const isTauri = typeof window !== "undefined" && "__TAURI__" in window;
 
+// Computed full path: parentPath/projectName
+const fullPath = computed(() => {
+  if (!form.value.parentPath || !form.value.name) return "";
+  const parent = form.value.parentPath.replace(/\/$/, "");
+  return `${parent}/${form.value.name}`;
+});
+
 const selectPath = async () => {
   if (isTauri) {
     // Tauri desktop: use native dialog
@@ -32,7 +40,7 @@ const selectPath = async () => {
       const { open } = await import("@tauri-apps/plugin-dialog");
       const selected = await open({ directory: true });
       if (selected) {
-        form.value.path = selected as string;
+        form.value.parentPath = selected as string;
       }
     } catch {
       // ignore
@@ -46,22 +54,26 @@ const selectPath = async () => {
 const handleDirSelected = (event: Event) => {
   const input = event.target as HTMLInputElement;
   if (input.files && input.files.length > 0) {
-    // Get the directory path from the first file'swebkitRelativePath
+    // Get the directory path from the first file's webkitRelativePath
     const file = input.files[0];
     const relativePath = file.webkitRelativePath;
     // Extract directory name (everything before the first /)
     const dirName = relativePath.split("/")[0];
-    form.value.path = `~/NovelProjects/${dirName}`;
+    form.value.parentPath = `~/NovelProjects`;
   }
   // Reset input so same folder can be selected again
   input.value = "";
 };
 
 const submit = async () => {
-  if (!form.value.name || !form.value.path) return;
+  if (!form.value.name || !form.value.parentPath) return;
   submitting.value = true;
   try {
-    await store.createProject(form.value);
+    // Create project with full path (parentPath/projectName)
+    await store.createProject({
+      ...form.value,
+      path: fullPath.value,
+    });
     emit("close");
   } finally {
     submitting.value = false;
@@ -93,10 +105,18 @@ const submit = async () => {
         </div>
 
         <div class="form-group">
+          <label>项目描述</label>
+          <textarea v-model="form.description" placeholder="请输入项目描述（可选）" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
           <label>存储路径 *</label>
           <div class="path-input">
-            <input v-model="form.path" type="text" placeholder="请输入项目目录路径" />
+            <input :value="fullPath" type="text" placeholder="请先输入项目名称并选择父目录" readonly />
             <button @click="selectPath">浏览</button>
+          </div>
+          <div class="path-hint" v-if="form.parentPath && form.name">
+            项目将创建在: {{ fullPath }}
           </div>
         </div>
 
@@ -137,7 +157,7 @@ const submit = async () => {
 
       <div class="dialog-footer">
         <button class="btn-secondary" @click="emit('close')">取消</button>
-        <button class="btn-primary" :disabled="!form.name || !form.path || submitting" @click="submit">
+        <button class="btn-primary" :disabled="!form.name || !form.parentPath || submitting" @click="submit">
           {{ submitting ? "创建中..." : "创建项目" }}
         </button>
       </div>
@@ -211,7 +231,8 @@ const submit = async () => {
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
   background: var(--bg-surface);
@@ -222,9 +243,21 @@ const submit = async () => {
   outline: none;
 }
 
+.form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
 .form-group input:focus,
-.form-group select:focus {
+.form-group select:focus,
+.form-group textarea:focus {
   border-color: var(--accent);
+}
+
+.path-hint {
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
 }
 
 .form-row {
