@@ -41,7 +41,9 @@
         "installMode": "both",
         "languages": ["zh_CN", "en_US"]
       },
-      "wix": {}
+      "wix": {
+        "language": ["zh-CN", "en-US"]
+      }
     },
     "macOS": {
       "minimumSystemVersion": "10.15",
