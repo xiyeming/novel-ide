@@ -8,11 +8,11 @@ const activeSection = ref<'task' | 'workflow' | 'context' | 'execution' | 'conve
 const input = ref("");
 
 const sections = [
-  { id: 'task', label: 'Task', icon: '📋' },
-  { id: 'workflow', label: 'Workflow', icon: '⚙️' },
-  { id: 'context', label: 'Context', icon: '📚' },
-  { id: 'execution', label: 'Execution', icon: '🚀' },
-  { id: 'conversation', label: 'Conversation', icon: '💬' },
+  { id: 'task', label: '任务', icon: '📋' },
+  { id: 'workflow', label: '工作流', icon: '⚙️' },
+  { id: 'context', label: '上下文', icon: '📚' },
+  { id: 'execution', label: '执行', icon: '🚀' },
+  { id: 'conversation', label: '对话', icon: '💬' },
 ];
 
 const sendMessage = () => {
