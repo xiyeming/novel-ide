@@ -1,16 +1,19 @@
-<!-- src/components/layout/Breadcrumb.vue -->
 <script setup lang="ts">
 defineProps<{
-  items: string[];
+  items: Array<{ label: string; path?: string }>;
 }>();
 </script>
 
 <template>
   <div class="breadcrumb">
-    <template v-for="(item, index) in items" :key="index">
-      <span class="breadcrumb-item">{{ item }}</span>
-      <span v-if="index < items.length - 1" class="breadcrumb-separator">/</span>
-    </template>
+    <span
+      v-for="(item, index) in items"
+      :key="index"
+      class="breadcrumb-item"
+    >
+      <span v-if="index > 0" class="breadcrumb-separator">/</span>
+      <span class="breadcrumb-label">{{ item.label }}</span>
+    </span>
   </div>
 </template>
 
@@ -18,23 +21,29 @@ defineProps<{
 .breadcrumb {
   display: flex;
   align-items: center;
-  height: 28px;
+  height: 24px;
   padding: 0 var(--spacing-3);
-  background: var(--bg-background);
+  background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-default);
   font-size: var(--font-size-sm);
-  color: var(--gray-500);
-  overflow: hidden;
+  color: var(--text-secondary);
 }
 
 .breadcrumb-item {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
 }
 
 .breadcrumb-separator {
-  margin: 0 var(--spacing-1);
-  color: var(--gray-600);
+  color: var(--gray-500);
+}
+
+.breadcrumb-label {
+  cursor: pointer;
+}
+
+.breadcrumb-label:hover {
+  color: var(--text-primary);
 }
 </style>
