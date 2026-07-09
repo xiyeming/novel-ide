@@ -46,14 +46,4 @@ impl PerformanceService {
         let metadata = std::fs::metadata(file_path)?;
         Ok(metadata.len())
     }
-
-    #[allow(dead_code)]
-    pub fn optimize_content(&self, content: &str) -> String {
-        content
-            .lines()
-            .map(|line| line.trim())
-            .filter(|line| !line.is_empty())
-            .collect::<Vec<_>>()
-            .join("\n")
-    }
 }
