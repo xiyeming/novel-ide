@@ -10,4 +10,5 @@ pub mod proofread;
 pub mod search;
 pub mod settings;
 pub mod version;
+pub mod shortcuts;
 pub mod workflow;

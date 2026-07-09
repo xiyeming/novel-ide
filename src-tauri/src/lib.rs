@@ -75,6 +75,10 @@ pub fn run() {
             commands::cloud::delete_cloud_config,
             commands::cloud::upload_to_cloud,
             commands::cloud::download_from_cloud,
+            commands::shortcuts::list_shortcuts,
+            commands::shortcuts::update_shortcut,
+            commands::shortcuts::toggle_shortcut,
+            commands::shortcuts::generate_hyprland_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
