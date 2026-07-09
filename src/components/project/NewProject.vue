@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useProjectStore } from "../../stores/project";
+import CustomSelect from "../common/CustomSelect.vue";
 
 const emit = defineEmits<{ close: [] }>();
 const store = useProjectStore();
@@ -18,9 +19,35 @@ const form = ref({
   story_structure: "三幕式",
 });
 
-const genres = ["仙侠", "玄幻", "都市", "科幻", "历史", "悬疑", "言情", "武侠", "奇幻", "其他"];
-const povs = ["第一人称", "第二人称", "第三人称有限", "第三人称全知", "多视角"];
-const structures = ["三幕式", "英雄之旅", "起承转合", "非线性", "自由结构"];
+const genres = [
+  { label: "请选择", value: "" },
+  { label: "仙侠", value: "仙侠" },
+  { label: "玄幻", value: "玄幻" },
+  { label: "都市", value: "都市" },
+  { label: "科幻", value: "科幻" },
+  { label: "历史", value: "历史" },
+  { label: "悬疑", value: "悬疑" },
+  { label: "言情", value: "言情" },
+  { label: "武侠", value: "武侠" },
+  { label: "奇幻", value: "奇幻" },
+  { label: "其他", value: "其他" },
+];
+
+const povs = [
+  { label: "第一人称", value: "第一人称" },
+  { label: "第二人称", value: "第二人称" },
+  { label: "第三人称有限", value: "第三人称有限" },
+  { label: "第三人称全知", value: "第三人称全知" },
+  { label: "多视角", value: "多视角" },
+];
+
+const structures = [
+  { label: "三幕式", value: "三幕式" },
+  { label: "英雄之旅", value: "英雄之旅" },
+  { label: "起承转合", value: "起承转合" },
+  { label: "非线性", value: "非线性" },
+  { label: "自由结构", value: "自由结构" },
+];
 
 const submitting = ref(false);
 const fileInputRef = ref<HTMLInputElement | null>(null);
@@ -123,16 +150,11 @@ const submit = async () => {
         <div class="form-row">
           <div class="form-group">
             <label>题材</label>
-            <select v-model="form.genre">
-              <option value="">请选择</option>
-              <option v-for="g in genres" :key="g" :value="g">{{ g }}</option>
-            </select>
+            <CustomSelect v-model="form.genre" :options="genres" placeholder="请选择" />
           </div>
           <div class="form-group">
             <label>叙事视角</label>
-            <select v-model="form.narrative_pov">
-              <option v-for="p in povs" :key="p" :value="p">{{ p }}</option>
-            </select>
+            <CustomSelect v-model="form.narrative_pov" :options="povs" />
           </div>
         </div>
 
@@ -149,9 +171,7 @@ const submit = async () => {
 
         <div class="form-group">
           <label>故事结构</label>
-          <select v-model="form.story_structure">
-            <option v-for="s in structures" :key="s" :value="s">{{ s }}</option>
-          </select>
+          <CustomSelect v-model="form.story_structure" :options="structures" />
         </div>
       </div>
 
