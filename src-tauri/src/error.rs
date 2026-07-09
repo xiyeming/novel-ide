@@ -29,6 +29,9 @@ pub enum AppError {
 
     #[error("HTTP 请求错误: {0}")]
     Http(#[from] reqwest::Error),
+
+    #[error("ZIP 错误: {0}")]
+    Zip(#[from] zip::result::ZipError),
 }
 
 impl Serialize for AppError {
