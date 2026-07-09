@@ -1,77 +1,115 @@
 /* src/styles/variables.css */
 :root {
-  /* Colors - Dark Theme */
-  --bg-primary: #1e1e2e;
-  --bg-secondary: #181825;
-  --bg-tertiary: #11111b;
-  --bg-surface: #313244;
-  --bg-hover: #45475a;
-  --bg-active: #585b70;
+  /* Gray 色阶 */
+  --gray-50: #FAFBFC;
+  --gray-100: #F1F3F5;
+  --gray-200: #E9ECEF;
+  --gray-300: #DEE2E6;
+  --gray-400: #CED4DA;
+  --gray-500: #ADB5BD;
+  --gray-600: #868E96;
+  --gray-700: #495057;
+  --gray-800: #343A40;
+  --gray-900: #212529;
 
-  --text-primary: #cdd6f4;
-  --text-secondary: #a6adc8;
-  --text-muted: #6c7086;
+  /* Blue 色阶 */
+  --blue-50: #E7F5FF;
+  --blue-100: #D0EBFF;
+  --blue-200: #A5D8FF;
+  --blue-300: #74C0FC;
+  --blue-400: #4DABF7;
+  --blue-500: #339AF0;
+  --blue-600: #228BE6;
+  --blue-700: #1C7ED6;
+  --blue-800: #1971C2;
+  --blue-900: #1864AB;
 
-  --accent: #89b4fa;
-  --accent-hover: #74c7ec;
-  --success: #a6e3a1;
-  --warning: #f9e2af;
-  --error: #f38ba8;
-  --info: #89dceb;
+  /* 语义色 */
+  --success: #40C057;
+  --warning: #FAB005;
+  --danger: #FA5252;
+  --info: #15AABF;
+  --purple: #7950F2;
+  --teal: #20C997;
 
-  --border: #313244;
-  --border-focus: #89b4fa;
+  /* 暗色主题 Surface */
+  --bg-background: #171C25;
+  --bg-sidebar: #1E2533;
+  --bg-panel: #252F40;
+  --bg-card: #2A3548;
+  --bg-hover: #344055;
+  --bg-active: #3D4A60;
+  --border-default: #313C50;
+  --border-divider: #2A3548;
+  --overlay: rgba(0, 0, 0, 0.5);
 
-  /* Spacing */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 12px;
-  --spacing-lg: 16px;
-  --spacing-xl: 24px;
-
-  /* Font */
+  /* 字体族 */
+  --font-sans: "Inter", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
-  --font-sans: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-serif: "Noto Serif SC", "Source Han Serif SC", serif;
+
+  /* 字体大小 */
+  --font-size-xs: 11px;
   --font-size-sm: 12px;
+  --font-size-base: 13px;
   --font-size-md: 14px;
   --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 32px;
+
+  /* 字重 */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* 行高 */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* 间距 */
+  --spacing-0: 0px;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+
+  /* 圆角 */
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* 阴影 */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+
+  /* 动画 */
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 500ms;
+
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Panel */
   --panel-min-width: 200px;
   --panel-min-height: 150px;
   --titlebar-height: 36px;
   --statusbar-height: 24px;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
-}
-
-/* Light Theme */
-.theme-light {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f5f5;
-  --bg-tertiary: #e0e0e0;
-  --bg-surface: #e8e8e8;
-  --bg-hover: #d0d0d0;
-  --bg-active: #b0b0b0;
-
-  --text-primary: #1a1a1a;
-  --text-secondary: #666666;
-  --text-muted: #999999;
-
-  --accent: #1976d2;
-  --accent-hover: #1565c0;
-  --success: #4caf50;
-  --warning: #ff9800;
-  --error: #f44336;
-  --info: #0288d1;
-
-  --border: #ddd;
-  --border-focus: #1976d2;
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.2);
 }
