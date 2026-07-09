@@ -1,6 +1,6 @@
 <!-- src/components/layout/IDELayout.vue -->
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import TitleBar from "./TitleBar.vue";
 import ActivityBar from "./ActivityBar.vue";
 import Sidebar from "./Sidebar.vue";
@@ -33,7 +33,17 @@ const bottomPanelVisible = ref(false);
 const inspectorVisible = ref(false);
 const inspectorType = ref<InspectorType>('chapter');
 
-const breadcrumbItems = ref<Array<{ label: string; path?: string }>>([]);
+// Compute breadcrumb items from current project and chapter
+const breadcrumbItems = computed(() => {
+  const items: Array<{ label: string }> = [];
+  if (projectStore.currentProject) {
+    items.push({ label: projectStore.currentProject.name });
+  }
+  if (chapterStore.currentChapter) {
+    items.push({ label: chapterStore.currentChapter.title });
+  }
+  return items;
+});
 
 const isDragging = ref(false);
 const dragTarget = ref<"sidebar" | "ai" | "bottom" | null>(null);
