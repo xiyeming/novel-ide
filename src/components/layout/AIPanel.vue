@@ -5,9 +5,11 @@ function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 import { useAIStore } from "../../stores/ai";
+import AIWritePanel from "../ai/AIWritePanel.vue";
 
 const aiStore = useAIStore();
 const input = ref("");
+const activeTab = ref<"chat" | "write">("chat");
 
 const models = [
   { value: "deepseek-chat", label: "DeepSeek Chat" },
@@ -62,56 +64,71 @@ const sendMessage = () => {
   input.value = "";
   aiStore.sendMessage(text);
 };
-
-const clearChat = () => {
-  aiStore.clearMessages();
-};
 </script>
 
 <template>
   <div class="ai-panel">
-    <div class="panel-header-sm">
-      <span>AI 助手</span>
-      <button class="clear-btn" @click="clearChat" title="清空对话">🗑</button>
-    </div>
-    <div class="model-selector">
-      <label for="model-select">模型:</label>
-      <select id="model-select" v-model="aiStore.selectedModel">
-        <option v-for="model in models" :key="model.value" :value="model.value">
-          {{ model.label }}
-        </option>
-      </select>
-    </div>
-    <div class="ai-messages">
-      <div v-if="aiStore.messages.length === 0" class="empty-state">
-        <p>开始与 AI 对话</p>
-      </div>
-      <div
-        v-for="msg in aiStore.messages"
-        :key="msg.id"
-        :class="['message', msg.role]"
+    <div class="panel-tabs">
+      <button
+        class="tab-btn"
+        :class="{ active: activeTab === 'chat' }"
+        @click="activeTab = 'chat'"
       >
-        <div
-          v-if="msg.role === 'assistant'"
-          class="message-content md-rendered"
-          v-html="renderMarkdown(msg.content)"
-        ></div>
-        <div v-else class="message-content">{{ msg.content }}</div>
+        AI 对话
+      </button>
+      <button
+        class="tab-btn"
+        :class="{ active: activeTab === 'write' }"
+        @click="activeTab = 'write'"
+      >
+        AI 写作
+      </button>
+    </div>
+
+    <template v-if="activeTab === 'chat'">
+      <div class="model-selector">
+        <label for="model-select">模型:</label>
+        <select id="model-select" v-model="aiStore.selectedModel">
+          <option v-for="model in models" :key="model.value" :value="model.value">
+            {{ model.label }}
+          </option>
+        </select>
       </div>
-    </div>
-    <div v-if="aiStore.streaming" class="streaming-indicator">
-      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-    </div>
-    <div class="ai-input">
-      <input
-        v-model="input"
-        type="text"
-        placeholder="输入消息..."
-        :disabled="aiStore.streaming"
-        @keydown.enter="sendMessage"
-      />
-      <button @click="sendMessage" :disabled="aiStore.streaming">发送</button>
-    </div>
+      <div class="ai-messages">
+        <div v-if="aiStore.messages.length === 0" class="empty-state">
+          <p>开始与 AI 对话</p>
+        </div>
+        <div
+          v-for="msg in aiStore.messages"
+          :key="msg.id"
+          :class="['message', msg.role]"
+        >
+          <div
+            v-if="msg.role === 'assistant'"
+            class="message-content md-rendered"
+            v-html="renderMarkdown(msg.content)"
+          ></div>
+          <div v-else class="message-content">{{ msg.content }}</div>
+        </div>
+      </div>
+      <div v-if="aiStore.streaming" class="streaming-indicator">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+      <div class="ai-input">
+        <input
+          v-model="input"
+          type="text"
+          placeholder="输入消息..."
+          :disabled="aiStore.streaming"
+          @keydown.enter="sendMessage"
+        />
+        <button @click="sendMessage" :disabled="aiStore.streaming">发送</button>
+      </div>
+    </template>
+
+    <template v-else>
+      <AIWritePanel />
+    </template>
   </div>
 </template>
 
@@ -122,6 +139,33 @@ const clearChat = () => {
   height: 100%;
   background: var(--bg-secondary);
   border-left: 1px solid var(--border);
+}
+
+.panel-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px 8px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface);
+}
+
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
 }
 
 .panel-header-sm {
