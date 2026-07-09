@@ -5,6 +5,8 @@ import NewProject from "./NewProject.vue";
 
 const store = useProjectStore();
 const showNewDialog = ref(false);
+const showEditDialog = ref(false);
+const selectedProject = ref<string | null>(null);
 
 onMounted(() => {
   store.fetchProjects();
@@ -17,6 +19,21 @@ const formatDate = (dateStr: string) => {
 const emit = defineEmits<{
   openProject: [projectId: string];
 }>();
+
+const handleViewDetails = (projectId: string) => {
+  emit("openProject", projectId);
+};
+
+const handleEdit = (projectId: string) => {
+  selectedProject.value = projectId;
+  showEditDialog.value = true;
+};
+
+const handleDelete = async (projectId: string, projectName: string) => {
+  if (confirm(`确定要删除项目「${projectName}」吗？此操作不可恢复。`)) {
+    await store.deleteProject(projectId);
+  }
+};
 </script>
 
 <template>
@@ -39,14 +56,35 @@ const emit = defineEmits<{
         v-for="project in store.projects"
         :key="project.id"
         class="project-card"
-        @click="emit('openProject', project.id)"
       >
-        <div class="card-title">{{ project.name }}</div>
-        <div class="card-meta">
-          <span v-if="project.genre">{{ project.genre }}</span>
-          <span v-if="project.total_chapters">{{ project.total_chapters }} 章</span>
+        <div class="card-content" @click="emit('openProject', project.id)">
+          <div class="card-title">{{ project.name }}</div>
+          <div class="card-meta">
+            <span v-if="project.genre">{{ project.genre }}</span>
+            <span v-if="project.total_chapters">{{ project.total_chapters }} 章</span>
+          </div>
+          <div class="card-date">更新于 {{ formatDate(project.updated_at) }}</div>
         </div>
-        <div class="card-date">更新于 {{ formatDate(project.updated_at) }}</div>
+        <div class="card-actions">
+          <button class="action-btn" @click.stop="handleViewDetails(project.id)" title="查看详情">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+          <button class="action-btn" @click.stop="handleEdit(project.id)" title="编辑">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+          </button>
+          <button class="action-btn delete-btn" @click.stop="handleDelete(project.id, project.name)" title="删除">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -110,17 +148,21 @@ const emit = defineEmits<{
 }
 
 .project-card {
-  padding: var(--spacing-lg);
   background: var(--bg-surface);
   border-radius: 8px;
-  cursor: pointer;
   transition: all 0.15s;
   border: 1px solid transparent;
+  overflow: hidden;
 }
 
 .project-card:hover {
   border-color: var(--accent);
   transform: translateY(-2px);
+}
+
+.card-content {
+  padding: var(--spacing-lg);
+  cursor: pointer;
 }
 
 .card-title {
@@ -140,5 +182,32 @@ const emit = defineEmits<{
 .card-date {
   font-size: var(--font-size-sm);
   color: var(--text-muted);
+}
+
+.card-actions {
+  display: flex;
+  border-top: 1px solid var(--border);
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.action-btn:hover {
+  background: var(--bg-hover);
+  color: var(--accent);
+}
+
+.action-btn.delete-btn:hover {
+  color: var(--danger);
 }
 </style>
