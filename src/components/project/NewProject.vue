@@ -80,17 +80,17 @@ const submit = async () => {
   submitting.value = true;
   errorMsg.value = "";
   try {
-    // Debug: log form data before sending
+    // Send all form values directly without filtering
     const projectData = {
       name: form.value.name,
       path: form.value.parentPath,
-      genre: form.value.genre || undefined,
-      sub_genre: form.value.sub_genre || undefined,
-      target_readers: form.value.target_readers || undefined,
-      total_chapters: form.value.total_chapters || undefined,
-      words_per_chapter: form.value.words_per_chapter || undefined,
-      narrative_pov: form.value.narrative_pov || undefined,
-      story_structure: form.value.story_structure || undefined,
+      genre: form.value.genre,
+      sub_genre: form.value.sub_genre,
+      target_readers: form.value.target_readers,
+      total_chapters: form.value.total_chapters,
+      words_per_chapter: form.value.words_per_chapter,
+      narrative_pov: form.value.narrative_pov,
+      story_structure: form.value.story_structure,
     };
     console.log("DEBUG: Sending project data:", projectData);
     
