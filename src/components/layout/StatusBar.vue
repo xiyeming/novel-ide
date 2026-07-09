@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useProjectStore } from "../../stores/project";
-import { useChapterStore } from "../../stores/chapter";
 import { useAIStore } from "../../stores/ai";
 
 const projectStore = useProjectStore();
-const chapterStore = useChapterStore();
 const aiStore = useAIStore();
 
 const model = computed(() => aiStore.selectedModel);
@@ -16,6 +14,8 @@ const branch = ref("main");
 const ragEnabled = ref(true);
 const mcpServers = ref(3);
 const skillsLoaded = ref(12);
+const wordsCount = ref(0);
+const charsCount = ref(0);
 </script>
 
 <template>
@@ -34,6 +34,8 @@ const skillsLoaded = ref(12);
       <span class="status-item">🧩 Skills {{ skillsLoaded }}</span>
     </div>
     <div class="status-right">
+      <span class="status-item">📝 Words {{ wordsCount }}</span>
+      <span class="status-item">📄 Chars {{ charsCount }}</span>
       <span class="status-item">Ln 1, Col 1</span>
       <span class="status-item">UTF-8</span>
       <span class="status-item">CRLF</span>
