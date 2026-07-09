@@ -10,12 +10,13 @@ import KnowledgePanel from "../knowledge/KnowledgePanel.vue";
 import WorkflowPanel from "../workflow/WorkflowPanel.vue";
 import AgentPanel from "../agent/AgentPanel.vue";
 import CloudPanel from "../cloud/CloudPanel.vue";
+import ShortcutSettings from "../settings/ShortcutSettings.vue";
 
 const emit = defineEmits<{
   openChapter: [chapterId: string];
 }>();
 
-const activeTab = ref<"files" | "search" | "knowledge" | "config" | "model" | "workflow" | "agent" | "cloud" | "settings">("files");
+const activeTab = ref<"files" | "search" | "knowledge" | "config" | "model" | "workflow" | "agent" | "cloud" | "shortcut" | "settings">("files");
 const chapterStore = useChapterStore();
 const projectStore = useProjectStore();
 const searchStore = useSearchStore();
@@ -61,6 +62,7 @@ const tabs = [
   { id: "workflow" as const, icon: "⚙️", label: "工作流" },
   { id: "agent" as const, icon: "🧠", label: "智能体" },
   { id: "cloud" as const, icon: "☁️", label: "云同步" },
+  { id: "shortcut" as const, icon: "⌨️", label: "快捷键" },
   { id: "settings" as const, icon: "⚙️", label: "设置" },
 ];
 
@@ -255,6 +257,9 @@ const formatWordCount = (count: number) => {
       </div>
       <div v-else-if="activeTab === 'cloud'" class="tab-panel">
         <CloudPanel />
+      </div>
+      <div v-else-if="activeTab === 'shortcut'" class="tab-panel">
+        <ShortcutSettings />
       </div>
       <div v-else-if="activeTab === 'settings'" class="tab-panel">
         <div class="panel-header-sm">设置</div>
