@@ -31,7 +31,10 @@ const selectPath = async () => {
       form.value.path = selected as string;
     }
   } catch {
-    form.value.path = "~/NovelProjects";
+    // Browser fallback: set default path that user can modify
+    if (!form.value.path) {
+      form.value.path = "~/NovelProjects";
+    }
   }
 };
 
@@ -64,7 +67,7 @@ const submit = async () => {
         <div class="form-group">
           <label>存储路径 *</label>
           <div class="path-input">
-            <input v-model="form.path" type="text" placeholder="选择项目目录" readonly />
+            <input v-model="form.path" type="text" placeholder="请输入项目目录路径" />
             <button @click="selectPath">浏览</button>
           </div>
         </div>
