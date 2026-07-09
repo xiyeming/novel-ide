@@ -10,6 +10,18 @@ export interface Theme {
   isActive: boolean;
 }
 
+const defaultThemeConfig: Record<string, string> = {
+  "--bg-primary": "#0f172a",
+  "--bg-secondary": "#1e293b",
+  "--bg-tertiary": "#334155",
+  "--text-primary": "#f8fafc",
+  "--text-secondary": "#94a3b8",
+  "--accent-primary": "#3b82f6",
+  "--accent-secondary": "#60a5fa",
+  "--border-color": "#334155",
+  "--shadow-color": "rgba(0,0,0,0.3)",
+};
+
 export const useThemeStore = defineStore("theme", () => {
   const { call } = useTauriIPC();
   const themes = ref<Theme[]>([]);
@@ -57,11 +69,17 @@ export const useThemeStore = defineStore("theme", () => {
       root.classList.add("theme-dark");
     }
 
-    if (theme?.config) {
-      for (const [key, value] of Object.entries(theme.config)) {
-        root.style.setProperty(key, value);
-      }
+    const config = theme?.config ?? {};
+    for (const [key, value] of Object.entries({ ...defaultThemeConfig, ...config })) {
+      root.style.setProperty(key, value);
     }
+  };
+
+  const getThemePreview = (themeId?: string): Record<string, string> => {
+    const theme = themeId
+      ? themes.value.find((t) => t.id === themeId)
+      : activeTheme.value;
+    return { ...defaultThemeConfig, ...(theme?.config ?? {}) };
   };
 
   return {
@@ -73,5 +91,6 @@ export const useThemeStore = defineStore("theme", () => {
     createCustomTheme,
     deleteTheme,
     applyTheme,
+    getThemePreview,
   };
 });
