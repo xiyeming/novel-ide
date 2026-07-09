@@ -78,10 +78,17 @@ const submit = async () => {
   if (!form.value.name || !form.value.parentPath) return;
   submitting.value = true;
   try {
-    // Create project with full path (parentPath/projectName)
+    // Only pass fields that the backend expects
     await store.createProject({
-      ...form.value,
+      name: form.value.name,
       path: fullPath.value,
+      genre: form.value.genre || undefined,
+      sub_genre: form.value.sub_genre || undefined,
+      target_readers: form.value.target_readers || undefined,
+      total_chapters: form.value.total_chapters,
+      words_per_chapter: form.value.words_per_chapter,
+      narrative_pov: form.value.narrative_pov || undefined,
+      story_structure: form.value.story_structure || undefined,
     });
     emit("close");
   } finally {
