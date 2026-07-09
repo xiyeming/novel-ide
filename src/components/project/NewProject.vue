@@ -60,17 +60,23 @@ const fullPath = computed(() => {
   return `${parent}/${form.value.name}`;
 });
 
+// Log path changes for debugging
+const updateParentPath = (path: string) => {
+  console.log("Parent path selected:", path);
+  form.value.parentPath = path;
+};
+
 const selectPath = async () => {
   if (isTauri) {
     // Tauri desktop: use native dialog
     try {
       const { open } = await import("@tauri-apps/plugin-dialog");
-      const selected = await open({ directory: true });
+      const selected = await open({ directory: true, title: "选择项目父目录" });
       if (selected) {
-        form.value.parentPath = selected as string;
+        updateParentPath(selected as string);
       }
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error("Failed to open directory dialog:", err);
     }
   } else {
     // Browser: trigger hidden file input
