@@ -39,7 +39,10 @@
     "windows": {
       "nsis": {
         "installMode": "both",
-        "languages": ["zh_CN", "en_US"]
+        "languages": ["zh_CN", "en_US"],
+        "displayLanguageSelector": true,
+        "installerIcon": "icons/icon.ico",
+        "startMenuFolder": "Novel IDE"
       },
       "wix": {
         "language": ["zh-CN", "en-US"]
