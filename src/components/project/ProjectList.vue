@@ -4,13 +4,16 @@ import { useProjectStore } from "../../stores/project";
 import NewProject from "./NewProject.vue";
 import EditProject from "./EditProject.vue";
 import ProjectDetails from "./ProjectDetails.vue";
+import ConfirmDialog from "../common/ConfirmDialog.vue";
 import Toast from "../common/Toast.vue";
 
 const store = useProjectStore();
 const showNewDialog = ref(false);
 const showEditDialog = ref(false);
 const showDetailsDialog = ref(false);
+const showDeleteConfirm = ref(false);
 const selectedProject = ref<any>(null);
+const projectToDelete = ref<{ id: string; name: string } | null>(null);
 const toastRef = ref<InstanceType<typeof Toast> | null>(null);
 
 onMounted(() => {
@@ -35,15 +38,28 @@ const handleEdit = (project: any) => {
   showEditDialog.value = true;
 };
 
-const handleDelete = async (projectId: string, projectName: string) => {
-  if (confirm(`确定要删除项目「${projectName}」吗？此操作不可恢复。`)) {
-    try {
-      await store.deleteProject(projectId);
-      toastRef.value?.addToast(`项目「${projectName}」已删除`, "success");
-    } catch (error) {
-      toastRef.value?.addToast("删除项目失败", "error");
-    }
+const handleDelete = (projectId: string, projectName: string) => {
+  projectToDelete.value = { id: projectId, name: projectName };
+  showDeleteConfirm.value = true;
+};
+
+const confirmDelete = async () => {
+  if (!projectToDelete.value) return;
+  
+  try {
+    await store.deleteProject(projectToDelete.value.id);
+    toastRef.value?.addToast(`项目「${projectToDelete.value.name}」已删除`, "success");
+  } catch (error) {
+    toastRef.value?.addToast("删除项目失败", "error");
+  } finally {
+    showDeleteConfirm.value = false;
+    projectToDelete.value = null;
   }
+};
+
+const cancelDelete = () => {
+  showDeleteConfirm.value = false;
+  projectToDelete.value = null;
 };
 
 const handleUpdated = () => {
@@ -124,6 +140,16 @@ const handleUpdated = () => {
         @close="showDetailsDialog = false"
       />
     </Teleport>
+
+    <ConfirmDialog
+      :show="showDeleteConfirm"
+      title="删除项目"
+      :message="`确定要删除项目「${projectToDelete?.name}」吗？此操作不可恢复。`"
+      confirmText="删除"
+      cancelText="取消"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
 
     <Toast ref="toastRef" />
   </div>
