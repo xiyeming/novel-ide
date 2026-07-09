@@ -65,15 +65,15 @@ const handleInput = (event: Event) => {
 }
 
 .number-btn {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--bg-surface);
   border: none;
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
   transition: background var(--duration-fast) var(--ease-out);
   flex-shrink: 0;
@@ -99,7 +99,7 @@ const handleInput = (event: Event) => {
 .number-input input {
   flex: 1;
   min-width: 0;
-  padding: 0 var(--spacing-sm);
+  padding: 0 var(--spacing-xs);
   background: var(--bg-surface);
   border: none;
   color: var(--text-primary);
