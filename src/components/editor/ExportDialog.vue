@@ -44,12 +44,29 @@ const exportSingle = async () => {
   status.value = "正在导出...";
   results.value = [];
   try {
-    const result = await call<ExportResult>("export_chapter", {
-      chapterId: props.chapterId,
-      format: format.value,
-      outputPath: outputPath.value,
-    });
-    results.value = [result];
+    if (format.value === "txt" || format.value === "md") {
+      const result = await call<ExportResult>("export_chapter", {
+        chapterId: props.chapterId,
+        format: format.value,
+        outputPath: outputPath.value,
+      });
+      results.value = [result];
+    } else if (format.value === "docx") {
+      await call("export_docx", {
+        chapterId: props.chapterId,
+        outputPath: outputPath.value,
+      });
+    } else if (format.value === "pdf") {
+      await call("export_pdf", {
+        chapterId: props.chapterId,
+        outputPath: outputPath.value,
+      });
+    } else if (format.value === "epub") {
+      await call("export_epub", {
+        chapterId: props.chapterId,
+        outputPath: outputPath.value,
+      });
+    }
     status.value = "导出完成";
   } catch (e) {
     status.value = "导出失败: " + String(e);
@@ -65,13 +82,26 @@ const exportAll = async () => {
   status.value = "正在导出全部章节...";
   results.value = [];
   try {
-    const res = await call<ExportResult[]>("export_all_chapters", {
-      projectId,
-      format: format.value,
-      outputPath: outputPath.value,
-    });
-    results.value = res;
-    status.value = `导出完成，共 ${res.length} 个文件`;
+    if (format.value === "txt" || format.value === "md") {
+      const res = await call<ExportResult[]>("export_all_chapters", {
+        projectId,
+        format: format.value,
+        outputPath: outputPath.value,
+      });
+      results.value = res;
+    } else {
+      const chapters = await call<{ id: string }[]>("list_chapters", { projectId });
+      for (const ch of chapters) {
+        if (format.value === "docx") {
+          await call("export_docx", { chapterId: ch.id, outputPath: outputPath.value });
+        } else if (format.value === "pdf") {
+          await call("export_pdf", { chapterId: ch.id, outputPath: outputPath.value });
+        } else if (format.value === "epub") {
+          await call("export_epub", { chapterId: ch.id, outputPath: outputPath.value });
+        }
+      }
+    }
+    status.value = "导出完成";
   } catch (e) {
     status.value = "导出失败: " + String(e);
   } finally {
@@ -108,6 +138,24 @@ const formatSize = (bytes: number) => {
               @click="format = 'md'"
             >
               Markdown
+            </button>
+            <button
+              :class="['format-btn', { active: format === 'docx' }]"
+              @click="format = 'docx'"
+            >
+              DOCX
+            </button>
+            <button
+              :class="['format-btn', { active: format === 'pdf' }]"
+              @click="format = 'pdf'"
+            >
+              PDF
+            </button>
+            <button
+              :class="['format-btn', { active: format === 'epub' }]"
+              @click="format = 'epub'"
+            >
+              EPUB
             </button>
           </div>
         </div>

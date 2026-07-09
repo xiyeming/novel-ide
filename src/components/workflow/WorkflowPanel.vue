@@ -30,6 +30,15 @@ async function createWorkflow() {
   newDescription.value = "";
   newStages.value = [{ name: "初稿", stage_type: "draft", temperature: 0.7, max_tokens: 2000 }];
 }
+
+const props = defineProps<{
+  chapterId?: string | null;
+}>();
+
+async function executeWorkflow(workflowId: string) {
+  if (!props.chapterId) return;
+  await store.executeWorkflow(workflowId, props.chapterId);
+}
 </script>
 
 <template>
@@ -74,7 +83,17 @@ async function createWorkflow() {
           <div class="wf-name">{{ wf.name }}</div>
           <div class="wf-stages">{{ wf.stages.length }} 个阶段</div>
         </div>
-        <button class="btn-icon danger" @click="store.deleteWorkflow(wf.id)">🗑</button>
+        <div class="wf-actions">
+          <button
+            class="btn-sm btn-execute"
+            :disabled="!chapterId"
+            title="执行工作流"
+            @click="executeWorkflow(wf.id)"
+          >
+            ▶
+          </button>
+          <button class="btn-icon danger" @click="store.deleteWorkflow(wf.id)">🗑</button>
+        </div>
       </div>
     </div>
   </div>
@@ -185,6 +204,25 @@ async function createWorkflow() {
   padding: 8px;
   border: 1px solid #333;
   border-radius: 4px;
+}
+.wf-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.btn-execute {
+  background: #2a4a2a;
+  border: 1px solid #3a6a3a;
+  color: #8f8;
+  font-size: 11px;
+}
+.btn-execute:hover:not(:disabled) {
+  background: #3a6a3a;
+  color: #fff;
+}
+.btn-execute:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 .wf-name {
   font-size: 13px;
