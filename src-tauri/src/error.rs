@@ -26,6 +26,9 @@ pub enum AppError {
 
     #[error("内部错误: {0}")]
     Internal(String),
+
+    #[error("HTTP 请求错误: {0}")]
+    Http(#[from] reqwest::Error),
 }
 
 impl Serialize for AppError {

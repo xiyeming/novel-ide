@@ -26,6 +26,7 @@ pub fn run() {
             })
         })
         .invoke_handler(tauri::generate_handler![
+            commands::ai::chat_stream,
             commands::project::create_project,
             commands::project::list_projects,
             commands::project::open_project,
