@@ -75,3 +75,5 @@ npm run build
 - 原生数字输入控件不支持 CSS 样式。使用自定义 NumberInput 组件。
 - 原生 `<select>` 下拉框不支持暗色主题。使用自定义 CustomSelect 组件。
 - Tauri 对话框权限必须在 `src-tauri/capabilities/desktop.json` 中声明。
+- 前端优化和设计修改必须调用 frontend-design skill。
+- 修复问题不要靠猜，要全面分析找出真正的问题再修复。
