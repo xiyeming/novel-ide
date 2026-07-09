@@ -1,5 +1,6 @@
 use crate::error::{AppError, AppResult};
 use crate::models::workflow::{Workflow, WorkflowExecution, WorkflowStage};
+use crate::services::workflow_engine::WorkflowEngine;
 use crate::state::AppState;
 use sqlx::Row;
 use tauri::State;
@@ -153,4 +154,49 @@ pub async fn get_workflow_execution(
         completed_at: row.get("completed_at"),
         created_at: row.get("created_at"),
     })
+}
+
+#[tauri::command]
+pub async fn run_workflow_stage(
+    state: State<'_, AppState>,
+    execution_id: String,
+    stage_index: usize,
+    content: String,
+) -> AppResult<String> {
+    let engine = WorkflowEngine::new(&state);
+
+    let db = state.db().await?;
+    let execution = sqlx::query("SELECT * FROM workflow_executions WHERE id = ?")
+        .bind(&execution_id)
+        .fetch_optional(&db)
+        .await?
+        .ok_or_else(|| AppError::Internal("执行记录不存在".into()))?;
+
+    let workflow_id: String = execution.get("workflow_id");
+    let row = sqlx::query("SELECT * FROM workflows WHERE id = ?")
+        .bind(&workflow_id)
+        .fetch_one(&db)
+        .await?;
+
+    let stages_json: String = row.get("stages");
+    let stages: Vec<WorkflowStage> = serde_json::from_str(&stages_json)?;
+
+    let stage = stages
+        .get(stage_index)
+        .ok_or_else(|| AppError::Internal("阶段索引越界".into()))?;
+
+    let result = engine.run_stage(stage, &content, &execution_id).await?;
+
+    let mut results: std::collections::HashMap<String, String> =
+        serde_json::from_str(&execution.get::<String, _>("results")).unwrap_or_default();
+    results.insert(stage_index.to_string(), result.clone());
+
+    sqlx::query("UPDATE workflow_executions SET results = ?, current_stage = ? WHERE id = ?")
+        .bind(serde_json::to_string(&results)?)
+        .bind(stage_index as i64)
+        .bind(&execution_id)
+        .execute(&db)
+        .await?;
+
+    Ok(result)
 }

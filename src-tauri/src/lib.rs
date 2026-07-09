@@ -2,6 +2,7 @@ mod commands;
 mod db;
 mod error;
 mod models;
+mod services;
 mod state;
 
 use state::AppState;
@@ -61,6 +62,7 @@ pub fn run() {
             commands::workflow::delete_workflow,
             commands::workflow::execute_workflow,
             commands::workflow::get_workflow_execution,
+            commands::workflow::run_workflow_stage,
             commands::agent::create_agent,
             commands::agent::list_agents,
             commands::agent::update_agent,
