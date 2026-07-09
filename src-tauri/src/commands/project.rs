@@ -18,6 +18,15 @@ pub async fn create_project(
 ) -> AppResult<Project> {
     let db = state.db().await?;
 
+    // Debug: log received parameters
+    eprintln!("DEBUG: create_project called with:");
+    eprintln!("  name: {:?}", name);
+    eprintln!("  genre: {:?}", genre);
+    eprintln!("  total_chapters: {:?}", total_chapters);
+    eprintln!("  words_per_chapter: {:?}", words_per_chapter);
+    eprintln!("  narrative_pov: {:?}", narrative_pov);
+    eprintln!("  story_structure: {:?}", story_structure);
+
     // Validate project name
     if name.is_empty() || name.len() > 50 {
         return Err(crate::error::AppError::InvalidArgument(
