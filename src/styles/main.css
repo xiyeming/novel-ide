@@ -17,6 +17,23 @@ html, body, #app {
   font-size: var(--font-size-md);
 }
 
+/* Form elements reset for dark theme */
+input, select, textarea, button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+input, select, textarea {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
