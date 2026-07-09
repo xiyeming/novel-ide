@@ -9,6 +9,7 @@ pub mod project;
 pub mod proofread;
 pub mod search;
 pub mod settings;
+pub mod theme;
 pub mod version;
 pub mod shortcuts;
 pub mod workflow;

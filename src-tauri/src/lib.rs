@@ -79,6 +79,10 @@ pub fn run() {
             commands::shortcuts::update_shortcut,
             commands::shortcuts::toggle_shortcut,
             commands::shortcuts::generate_hyprland_config,
+            commands::theme::list_themes,
+            commands::theme::set_active_theme,
+            commands::theme::create_custom_theme,
+            commands::theme::delete_theme,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
