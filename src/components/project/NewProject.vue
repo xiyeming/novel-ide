@@ -79,9 +79,10 @@ const submit = async () => {
   submitting.value = true;
   try {
     // Only pass fields that the backend expects
+    // Note: path should be parentPath only, backend will append name
     await store.createProject({
       name: form.value.name,
-      path: fullPath.value,
+      path: form.value.parentPath,
       genre: form.value.genre || undefined,
       sub_genre: form.value.sub_genre || undefined,
       target_readers: form.value.target_readers || undefined,
