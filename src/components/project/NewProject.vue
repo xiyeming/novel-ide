@@ -178,12 +178,14 @@ const submit = async () => {
 
 .dialog {
   width: 500px;
-  max-height: 80vh;
+  max-height: 90vh;
   background: var(--bg-secondary);
   border-radius: 12px;
   border: 1px solid var(--border);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .dialog-header {
@@ -217,6 +219,7 @@ const submit = async () => {
 .dialog-body {
   padding: var(--spacing-lg);
   overflow-y: auto;
+  flex: 1;
 }
 
 .form-group {
@@ -266,6 +269,19 @@ const submit = async () => {
   gap: var(--spacing-md);
 }
 
+.form-row .form-group {
+  min-width: 0;
+}
+
+.form-row :deep(.number-input) {
+  max-width: 100%;
+}
+
+.form-row :deep(.number-input input) {
+  min-width: 0;
+  width: 0;
+}
+
 .path-input {
   display: flex;
   gap: var(--spacing-sm);
@@ -294,6 +310,8 @@ const submit = async () => {
   gap: var(--spacing-sm);
   padding: var(--spacing-lg);
   border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
 }
 
 .btn-secondary {
