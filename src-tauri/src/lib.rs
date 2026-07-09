@@ -50,6 +50,10 @@ pub fn run() {
             commands::model::test_connection,
             commands::export::export_chapter,
             commands::export::export_all_chapters,
+            commands::knowledge::import_knowledge,
+            commands::knowledge::list_knowledge,
+            commands::knowledge::delete_knowledge,
+            commands::knowledge::search_knowledge,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,6 +1,7 @@
 pub mod ai;
 pub mod chapter;
 pub mod export;
+pub mod knowledge;
 pub mod model;
 pub mod project;
 pub mod search;
