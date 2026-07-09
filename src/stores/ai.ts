@@ -59,9 +59,7 @@ export const useAIStore = defineStore("ai", () => {
         .filter((m) => m.id !== assistantId)
         .map((m) => ({ role: m.role, content: m.content }));
 
-      let unlisten: (() => void) | undefined;
-
-      unlisten = await listen<{ content: string; done: boolean }>(
+      const unlisten = await listen<{ content: string; done: boolean }>(
         "ai:chunk",
         (event) => {
           const msg = messages.value.find((m) => m.id === assistantId);

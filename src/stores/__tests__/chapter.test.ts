@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useChapterStore } from '../chapter'
-import { useTauriIPC } from '../../composables/useTauriIPC'
+
 
 const mockCall = vi.fn()
 
