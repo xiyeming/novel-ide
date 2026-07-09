@@ -1,6 +1,7 @@
 pub mod agent;
 pub mod ai;
 pub mod chapter;
+pub mod cloud;
 pub mod export;
 pub mod knowledge;
 pub mod model;

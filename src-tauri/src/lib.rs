@@ -70,6 +70,11 @@ pub fn run() {
             commands::agent::list_agents,
             commands::agent::update_agent,
             commands::agent::delete_agent,
+            commands::cloud::create_cloud_config,
+            commands::cloud::list_cloud_configs,
+            commands::cloud::delete_cloud_config,
+            commands::cloud::upload_to_cloud,
+            commands::cloud::download_from_cloud,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
