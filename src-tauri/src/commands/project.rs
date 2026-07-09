@@ -89,7 +89,14 @@ pub async fn delete_project(
     Project::delete(&db, &project_id).await?;
 
     // Delete project directory
-    let _ = std::fs::remove_dir_all(&project.path);
+    let project_path = std::path::Path::new(&project.path);
+    if project_path.exists() {
+        if let Err(e) = std::fs::remove_dir_all(&project_path) {
+            eprintln!("Failed to delete project directory {}: {}", project.path, e);
+            // Return error but don't fail the whole operation
+            // The database record is already deleted
+        }
+    }
 
     Ok(())
 }
