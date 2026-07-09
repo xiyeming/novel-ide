@@ -87,3 +87,18 @@ pub async fn export_docx(
 
     Ok(())
 }
+
+#[tauri::command]
+pub async fn export_pdf(
+    state: State<'_, AppState>,
+    chapter_id: String,
+    output_path: String,
+) -> AppResult<()> {
+    let db = state.db().await?;
+
+    let chapter = crate::db::models::chapter::Chapter::find_by_id(&db, &chapter_id).await?;
+
+    crate::services::export_pdf::export_pdf(&chapter.content, &output_path, &chapter.title)?;
+
+    Ok(())
+}

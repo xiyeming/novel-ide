@@ -53,6 +53,7 @@ pub fn run() {
             commands::export::export_chapter,
             commands::export::export_all_chapters,
             commands::export::export_docx,
+            commands::export::export_pdf,
             commands::knowledge::import_knowledge,
             commands::knowledge::list_knowledge,
             commands::knowledge::delete_knowledge,
