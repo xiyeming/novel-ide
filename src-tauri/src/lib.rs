@@ -1,6 +1,7 @@
 mod commands;
 mod db;
 mod error;
+mod models;
 mod state;
 
 use state::AppState;
@@ -55,6 +56,11 @@ pub fn run() {
             commands::knowledge::delete_knowledge,
             commands::knowledge::search_knowledge,
             commands::proofread::proofread_chapter,
+            commands::workflow::create_workflow,
+            commands::workflow::list_workflows,
+            commands::workflow::delete_workflow,
+            commands::workflow::execute_workflow,
+            commands::workflow::get_workflow_execution,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
