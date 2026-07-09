@@ -6,6 +6,7 @@ import NumberInput from "../common/NumberInput.vue";
 
 const emit = defineEmits<{ close: [] }>();
 const store = useProjectStore();
+const errorMsg = ref("");
 
 const form = ref({
   name: "",
@@ -77,21 +78,27 @@ const selectPath = async () => {
 const submit = async () => {
   if (!form.value.name || !form.value.parentPath) return;
   submitting.value = true;
+  errorMsg.value = "";
   try {
-    // Only pass fields that the backend expects
-    // Note: path should be parentPath only, backend will append name
-    await store.createProject({
+    // Debug: log form data before sending
+    const projectData = {
       name: form.value.name,
       path: form.value.parentPath,
       genre: form.value.genre || undefined,
       sub_genre: form.value.sub_genre || undefined,
       target_readers: form.value.target_readers || undefined,
-      total_chapters: form.value.total_chapters,
-      words_per_chapter: form.value.words_per_chapter,
+      total_chapters: form.value.total_chapters || undefined,
+      words_per_chapter: form.value.words_per_chapter || undefined,
       narrative_pov: form.value.narrative_pov || undefined,
       story_structure: form.value.story_structure || undefined,
-    });
+    };
+    console.log("DEBUG: Sending project data:", projectData);
+    
+    await store.createProject(projectData);
     emit("close");
+  } catch (err: any) {
+    errorMsg.value = err?.message || "创建项目失败";
+    console.error("Failed to create project:", err);
   } finally {
     submitting.value = false;
   }
@@ -153,6 +160,10 @@ const submit = async () => {
         <div class="form-group">
           <label>故事结构</label>
           <CustomSelect v-model="form.story_structure" :options="structures" />
+        </div>
+
+        <div v-if="errorMsg" class="error-message">
+          {{ errorMsg }}
         </div>
       </div>
 
@@ -313,6 +324,16 @@ const submit = async () => {
   border-top: 1px solid var(--border);
   background: var(--bg-secondary);
   flex-shrink: 0;
+}
+
+.error-message {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(250, 82, 82, 0.1);
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  color: var(--danger);
+  font-size: var(--font-size-sm);
 }
 
 .btn-secondary {
