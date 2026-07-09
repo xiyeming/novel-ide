@@ -33,7 +33,7 @@ const bottomPanelVisible = ref(false);
 const inspectorVisible = ref(false);
 const inspectorType = ref<InspectorType>('chapter');
 
-const breadcrumbItems = ref<string[]>([]);
+const breadcrumbItems = ref<Array<{ label: string; path?: string }>>([]);
 
 const isDragging = ref(false);
 const dragTarget = ref<"sidebar" | "ai" | "bottom" | null>(null);
