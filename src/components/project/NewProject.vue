@@ -51,7 +51,6 @@ const structures = [
 ];
 
 const submitting = ref(false);
-const isTauri = typeof window !== "undefined" && "__TAURI__" in window;
 
 // Computed full path: parentPath/projectName
 const fullPath = computed(() => {
@@ -61,19 +60,16 @@ const fullPath = computed(() => {
 });
 
 const selectPath = async () => {
-  if (isTauri) {
-    // Tauri desktop: use native dialog
-    try {
-      const { open } = await import("@tauri-apps/plugin-dialog");
-      const selected = await open({ directory: true, title: "选择项目父目录" });
-      if (selected) {
-        form.value.parentPath = selected as string;
-      }
-    } catch (err) {
-      console.error("Failed to open directory dialog:", err);
+  // Try to import Tauri dialog - will fail in browser
+  try {
+    const { open } = await import("@tauri-apps/plugin-dialog");
+    const selected = await open({ directory: true, title: "选择项目父目录" });
+    if (selected) {
+      form.value.parentPath = selected as string;
     }
-  } else {
-    // Browser: show message that directory selection requires desktop app
+  } catch (err) {
+    // Browser or Tauri not available
+    console.error("Failed to open directory dialog:", err);
     alert("目录选择功能需要在桌面端使用。请手动输入路径。");
   }
 };
