@@ -57,10 +57,10 @@ function renderMarkdown(text: string): string {
 }
 
 const sendMessage = () => {
-  if (!input.value.trim()) return;
-  aiStore.addMessage("user", input.value);
+  if (!input.value.trim() || aiStore.streaming) return;
+  const text = input.value;
   input.value = "";
-  // AI response will be added later
+  aiStore.sendMessage(text);
 };
 
 const clearChat = () => {
@@ -99,14 +99,18 @@ const clearChat = () => {
         <div v-else class="message-content">{{ msg.content }}</div>
       </div>
     </div>
+    <div v-if="aiStore.streaming" class="streaming-indicator">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
     <div class="ai-input">
       <input
         v-model="input"
         type="text"
         placeholder="输入消息..."
+        :disabled="aiStore.streaming"
         @keydown.enter="sendMessage"
       />
-      <button @click="sendMessage">发送</button>
+      <button @click="sendMessage" :disabled="aiStore.streaming">发送</button>
     </div>
   </div>
 </template>
@@ -290,5 +294,39 @@ const clearChat = () => {
 
 .ai-input button:hover {
   opacity: 0.9;
+}
+
+.ai-input input:disabled,
+.ai-input button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.streaming-indicator {
+  display: flex;
+  gap: 4px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-top: 1px solid var(--border);
+}
+
+.streaming-indicator .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  animation: blink 1.4s infinite both;
+}
+
+.streaming-indicator .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.streaming-indicator .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0.3; }
+  40% { opacity: 1; }
 }
 </style>
