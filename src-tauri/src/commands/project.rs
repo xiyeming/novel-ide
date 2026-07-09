@@ -18,6 +18,16 @@ pub async fn create_project(
 ) -> AppResult<Project> {
     let db = state.db().await?;
 
+    // Debug: log received parameters
+    eprintln!("DEBUG: create_project called with:");
+    eprintln!("  name: {:?}", name);
+    eprintln!("  path: {:?}", path);
+    eprintln!("  genre: {:?}", genre);
+    eprintln!("  narrative_pov: {:?}", narrative_pov);
+    eprintln!("  total_chapters: {:?}", total_chapters);
+    eprintln!("  words_per_chapter: {:?}", words_per_chapter);
+    eprintln!("  story_structure: {:?}", story_structure);
+
     // Validate project name
     if name.is_empty() || name.len() > 50 {
         return Err(crate::error::AppError::InvalidArgument(
@@ -92,20 +102,26 @@ pub async fn delete_project(
 
     // Get project path before deletion
     let project = Project::find_by_id(&db, &project_id).await?;
+    let project_path = project.path.clone();
 
-    // Delete project directory first
-    let project_path = std::path::Path::new(&project.path);
-    if project_path.exists() {
-        if let Err(e) = std::fs::remove_dir_all(&project_path) {
-            eprintln!("Failed to delete project directory {}: {}", project.path, e);
-            return Err(crate::error::AppError::Internal(
-                format!("删除项目目录失败: {}", e),
-            ));
-        }
-    }
-
-    // Delete from database
+    // Delete from database first
     Project::delete(&db, &project_id).await?;
+
+    // Delete project directory
+    let path = std::path::Path::new(&project_path);
+    if path.exists() {
+        match std::fs::remove_dir_all(path) {
+            Ok(_) => {
+                eprintln!("Successfully deleted project directory: {}", project_path);
+            }
+            Err(e) => {
+                eprintln!("Failed to delete project directory {}: {}", project_path, e);
+                // Don't fail the operation, database record is already deleted
+            }
+        }
+    } else {
+        eprintln!("Project directory does not exist: {}", project_path);
+    }
 
     Ok(())
 }
