@@ -17,6 +17,60 @@ pub struct ChatResponse {
 }
 
 #[tauri::command]
+pub async fn continue_writing(
+    state: State<'_, AppState>,
+    content: String,
+    provider_id: String,
+    style: Option<String>,
+) -> AppResult<String> {
+    let service = crate::services::ai_features::AIFeaturesService::new(&state);
+    service.continue_writing(&content, &provider_id, style.as_deref()).await
+}
+
+#[tauri::command]
+pub async fn rewrite_content(
+    state: State<'_, AppState>,
+    content: String,
+    provider_id: String,
+    instruction: String,
+) -> AppResult<String> {
+    let service = crate::services::ai_features::AIFeaturesService::new(&state);
+    service.rewrite(&content, &provider_id, &instruction).await
+}
+
+#[tauri::command]
+pub async fn expand_content(
+    state: State<'_, AppState>,
+    content: String,
+    provider_id: String,
+    target_words: Option<u32>,
+) -> AppResult<String> {
+    let service = crate::services::ai_features::AIFeaturesService::new(&state);
+    service.expand(&content, &provider_id, target_words).await
+}
+
+#[tauri::command]
+pub async fn condense_content(
+    state: State<'_, AppState>,
+    content: String,
+    provider_id: String,
+) -> AppResult<String> {
+    let service = crate::services::ai_features::AIFeaturesService::new(&state);
+    service.condense(&content, &provider_id).await
+}
+
+#[tauri::command]
+pub async fn style_transfer(
+    state: State<'_, AppState>,
+    content: String,
+    provider_id: String,
+    target_style: String,
+) -> AppResult<String> {
+    let service = crate::services::ai_features::AIFeaturesService::new(&state);
+    service.style_transfer(&content, &provider_id, &target_style).await
+}
+
+#[tauri::command]
 pub async fn chat_stream(
     state: State<'_, AppState>,
     app: tauri::AppHandle,
