@@ -7,12 +7,12 @@ export function useKeyboardShortcuts(handlers: Record<string, ShortcutHandler>) 
   const store = useShortcutStore()
 
   function parseKeyBinding(binding: string): { key: string; ctrl: boolean; alt: boolean; shift: boolean; meta: boolean } {
-    const parts = binding.split('+')
+    const parts = binding.split('+').map(p => p.toLowerCase())
     const key = parts[parts.length - 1]
-    const ctrl = parts.includes('Ctrl') || parts.includes('CmdOrCtrl')
-    const alt = parts.includes('Alt')
-    const shift = parts.includes('Shift')
-    const meta = parts.includes('Cmd') || parts.includes('CmdOrCtrl')
+    const ctrl = parts.includes('ctrl') || parts.includes('cmdorctrl')
+    const alt = parts.includes('alt')
+    const shift = parts.includes('shift')
+    const meta = parts.includes('cmd') || parts.includes('cmdorctrl')
 
     return { key, ctrl, alt, shift, meta }
   }
@@ -24,8 +24,7 @@ export function useKeyboardShortcuts(handlers: Record<string, ShortcutHandler>) 
 
       const parsed = parseKeyBinding(binding)
 
-      const keyMatch = event.key.toLowerCase() === parsed.key.toLowerCase() ||
-                       event.code.toLowerCase() === `key${parsed.key.toLowerCase()}`
+      const keyMatch = event.key.toLowerCase() === parsed.key
       const ctrlMatch = event.ctrlKey === parsed.ctrl
       const altMatch = event.altKey === parsed.alt
       const shiftMatch = event.shiftKey === parsed.shift

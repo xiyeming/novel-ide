@@ -1,3 +1,4 @@
+import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useTauriIPC } from '../composables/useTauriIPC'
 
@@ -9,7 +10,7 @@ export interface Shortcut {
   isEnabled: boolean
 }
 
-export function useShortcutStore() {
+export const useShortcutStore = defineStore("shortcuts", () => {
   const shortcuts = ref<Shortcut[]>([])
   const loading = ref(false)
   const { call } = useTauriIPC()
@@ -54,4 +55,4 @@ export function useShortcutStore() {
     generateHyprlandConfig,
     getShortcutForAction,
   }
-}
+})
