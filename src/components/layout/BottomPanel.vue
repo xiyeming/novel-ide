@@ -2,6 +2,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
+defineProps<{
+  height?: number;
+}>();
+
 const activeTab = ref<"output" | "terminal" | "problems">("output");
 
 const tabs = [

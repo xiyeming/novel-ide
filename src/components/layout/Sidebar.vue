@@ -14,6 +14,10 @@ import ShortcutSettings from "../settings/ShortcutSettings.vue";
 import ThemeSettings from "../settings/ThemeSettings.vue";
 import SettingsPanel from "../settings/SettingsPanel.vue";
 
+defineProps<{
+  view?: string;
+}>();
+
 const emit = defineEmits<{
   openChapter: [chapterId: string];
 }>();

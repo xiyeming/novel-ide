@@ -2,10 +2,13 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import TitleBar from "./TitleBar.vue";
+import ActivityBar from "./ActivityBar.vue";
 import Sidebar from "./Sidebar.vue";
+import Breadcrumb from "./Breadcrumb.vue";
 import EditorPanel from "./EditorPanel.vue";
-import AIPanel from "./AIPanel.vue";
 import BottomPanel from "./BottomPanel.vue";
+import AIStudio from "../ai/AIStudio.vue";
+import StatusBar from "./StatusBar.vue";
 import { useProjectStore } from "../../stores/project";
 import { useChapterStore } from "../../stores/chapter";
 
@@ -17,11 +20,17 @@ const projectStore = useProjectStore();
 const chapterStore = useChapterStore();
 const editorPanelRef = ref<InstanceType<typeof EditorPanel> | null>(null);
 
-const sidebarWidth = ref(260);
-const aiPanelWidth = ref(320);
+const sidebarWidth = ref(280);
+const aiStudioWidth = ref(420);
 const bottomPanelHeight = ref(200);
-const showBottomPanel = ref(true);
-const showAIPanel = ref(true);
+
+type ViewType = 'explorer' | 'search' | 'ai' | 'plugins' | 'settings';
+const activeView = ref<ViewType>('explorer');
+const sidebarVisible = ref(true);
+const aiStudioVisible = ref(true);
+const bottomPanelVisible = ref(false);
+
+const breadcrumbItems = ref<string[]>([]);
 
 const isDragging = ref(false);
 const dragTarget = ref<"sidebar" | "ai" | "bottom" | null>(null);
@@ -38,7 +47,7 @@ const onMouseMove = (e: MouseEvent) => {
   if (dragTarget.value === "sidebar") {
     sidebarWidth.value = Math.max(200, Math.min(e.clientX, 500));
   } else if (dragTarget.value === "ai") {
-    aiPanelWidth.value = Math.max(250, Math.min(window.innerWidth - e.clientX, 500));
+    aiStudioWidth.value = Math.max(320, Math.min(window.innerWidth - e.clientX, 600));
   } else if (dragTarget.value === "bottom") {
     bottomPanelHeight.value = Math.max(100, Math.min(window.innerHeight - e.clientY, 400));
   }
@@ -79,24 +88,40 @@ const handleOpenChapter = (chapterId: string) => {
   <div class="ide-layout">
     <TitleBar @back="emit('back')" />
     <div class="ide-main">
-      <div class="ide-sidebar" :style="{ width: `${sidebarWidth}px` }">
-        <Sidebar @openChapter="handleOpenChapter" />
+      <ActivityBar
+        :activeView="activeView"
+        @select="activeView = $event"
+      />
+      <div class="sidebar" :style="{ width: sidebarVisible ? `${sidebarWidth}px` : '0' }">
+        <Sidebar :view="activeView" @openChapter="handleOpenChapter" />
       </div>
-      <div class="sidebar-resize" @mousedown="onMouseDown('sidebar', $event)" />
-      <div class="ide-center">
-        <div class="center-editor" :style="{ height: showBottomPanel ? `calc(100% - ${bottomPanelHeight}px)` : '100%' }">
+      <div
+        v-if="sidebarVisible"
+        class="resize-handle vertical"
+        @mousedown="onMouseDown('sidebar', $event)"
+      />
+      <div class="editor-area">
+        <Breadcrumb :items="breadcrumbItems" />
+        <div class="editor-workspace" :style="{ height: bottomPanelVisible ? `calc(100% - ${bottomPanelHeight}px)` : '100%' }">
           <EditorPanel ref="editorPanelRef" />
         </div>
-        <div v-if="showBottomPanel" class="bottom-resize" @mousedown="onMouseDown('bottom', $event)" />
-        <div v-if="showBottomPanel" class="center-bottom" :style="{ height: `${bottomPanelHeight}px` }">
-          <BottomPanel />
-        </div>
+        <div
+          v-if="bottomPanelVisible"
+          class="resize-handle horizontal"
+          @mousedown="onMouseDown('bottom', $event)"
+        />
+        <BottomPanel v-if="bottomPanelVisible" :height="bottomPanelHeight" />
       </div>
-      <div v-if="showAIPanel" class="ai-resize" @mousedown="onMouseDown('ai', $event)" />
-      <div v-if="showAIPanel" class="ide-ai" :style="{ width: `${aiPanelWidth}px` }">
-        <AIPanel />
+      <div
+        v-if="aiStudioVisible"
+        class="resize-handle vertical"
+        @mousedown="onMouseDown('ai', $event)"
+      />
+      <div class="ai-studio" :style="{ width: aiStudioVisible ? `${aiStudioWidth}px` : '0' }">
+        <AIStudio />
       </div>
     </div>
+    <StatusBar />
   </div>
 </template>
 
@@ -106,6 +131,7 @@ const handleOpenChapter = (chapterId: string) => {
   flex-direction: column;
   width: 100%;
   height: 100%;
+  background: var(--bg-background);
 }
 
 .ide-main {
@@ -114,62 +140,39 @@ const handleOpenChapter = (chapterId: string) => {
   overflow: hidden;
 }
 
-.ide-sidebar {
+.sidebar {
   flex-shrink: 0;
   overflow: hidden;
+  transition: width var(--duration-normal) var(--ease-out);
 }
 
-.sidebar-resize {
-  width: 4px;
-  cursor: col-resize;
-  background: transparent;
-  transition: background 0.15s;
-}
-
-.sidebar-resize:hover {
-  background: var(--accent);
-}
-
-.ide-center {
+.editor-area {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-.center-editor {
-  overflow: hidden;
-}
-
-.bottom-resize {
-  height: 4px;
-  cursor: row-resize;
-  background: transparent;
-  transition: background 0.15s;
-}
-
-.bottom-resize:hover {
-  background: var(--accent);
-}
-
-.center-bottom {
+.ai-studio {
   flex-shrink: 0;
   overflow: hidden;
+  transition: width var(--duration-normal) var(--ease-out);
 }
 
-.ai-resize {
+.resize-handle {
   width: 4px;
   cursor: col-resize;
   background: transparent;
-  transition: background 0.15s;
+  transition: background var(--duration-fast) var(--ease-out);
 }
 
-.ai-resize:hover {
-  background: var(--accent);
+.resize-handle:hover {
+  background: var(--blue-500);
 }
 
-.ide-ai {
-  flex-shrink: 0;
-  overflow: hidden;
+.resize-handle.horizontal {
+  width: 100%;
+  height: 4px;
+  cursor: row-resize;
 }
 </style>
