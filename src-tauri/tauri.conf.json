@@ -5,7 +5,7 @@
   "identifier": "com.novel-ide.app",
   "build": {
     "beforeDevCommand": "bun run dev",
-    "devUrl": "http://localhost:5173",
+    "devUrl": "http://localhost:5273",
     "beforeBuildCommand": "bun run build",
     "frontendDist": "../dist"
   },

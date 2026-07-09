@@ -151,7 +151,7 @@ crate-type = ["lib", "cdylib", "staticlib"]
   "identifier": "com.novel-ide.app",
   "build": {
     "beforeDevCommand": "bun run dev",
-    "devUrl": "http://localhost:5173",
+    "devUrl": "http://localhost:5273",
     "beforeBuildCommand": "bun run build",
     "frontendDist": "../dist"
   },
@@ -296,7 +296,7 @@ export default defineConfig(async () => ({
   plugins: [vue()],
   clearScreen: false,
   server: {
-    port: 5173,
+    port: 5273,
     strictPort: true,
     host: host || false,
     hmr: host
@@ -2619,7 +2619,7 @@ Expected: Build succeeds (may take a few minutes on first build)
 - [ ] **Step 3: Run frontend dev server**
 
 Run: `bun run dev`
-Expected: Vite dev server starts on http://localhost:5173
+Expected: Vite dev server starts on http://localhost:5273
 
 - [ ] **Step 4: Run Tauri dev**
 

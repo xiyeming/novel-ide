@@ -2,7 +2,7 @@ use crate::error::AppError;
 use std::fs::File;
 use std::io::Write;
 
-pub fn export_docx(content: &str, output_path: &str, title: &str) -> Result<(), AppError> {
+pub fn export_docx(content: &str, output_path: &str, _title: &str) -> Result<(), AppError> {
     let docx_xml = format!(
         r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">

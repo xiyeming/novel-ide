@@ -47,6 +47,7 @@ impl PerformanceService {
         Ok(metadata.len())
     }
 
+    #[allow(dead_code)]
     pub fn optimize_content(&self, content: &str) -> String {
         content
             .lines()

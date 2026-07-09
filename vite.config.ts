@@ -7,7 +7,7 @@ export default defineConfig(async () => ({
   plugins: [vue()],
   clearScreen: false,
   server: {
-    port: 5173,
+    port: 5273,
     strictPort: true,
     host: host || false,
     hmr: host
