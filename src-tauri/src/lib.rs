@@ -1,7 +1,7 @@
 mod commands;
 pub mod db;
 mod error;
-mod models;
+pub mod models;
 mod services;
 mod state;
 
