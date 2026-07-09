@@ -2,6 +2,7 @@
 import { ref, computed } from "vue";
 import { useProjectStore } from "../../stores/project";
 import CustomSelect from "../common/CustomSelect.vue";
+import NumberInput from "../common/NumberInput.vue";
 
 const emit = defineEmits<{ close: [] }>();
 const store = useProjectStore();
@@ -50,7 +51,6 @@ const structures = [
 ];
 
 const submitting = ref(false);
-const fileInputRef = ref<HTMLInputElement | null>(null);
 const isTauri = typeof window !== "undefined" && "__TAURI__" in window;
 
 // Computed full path: parentPath/projectName
@@ -60,12 +60,6 @@ const fullPath = computed(() => {
   return `${parent}/${form.value.name}`;
 });
 
-// Log path changes for debugging
-const updateParentPath = (path: string) => {
-  console.log("Parent path selected:", path);
-  form.value.parentPath = path;
-};
-
 const selectPath = async () => {
   if (isTauri) {
     // Tauri desktop: use native dialog
@@ -73,29 +67,15 @@ const selectPath = async () => {
       const { open } = await import("@tauri-apps/plugin-dialog");
       const selected = await open({ directory: true, title: "选择项目父目录" });
       if (selected) {
-        updateParentPath(selected as string);
+        form.value.parentPath = selected as string;
       }
     } catch (err) {
       console.error("Failed to open directory dialog:", err);
     }
   } else {
-    // Browser: trigger hidden file input
-    fileInputRef.value?.click();
+    // Browser: show message that directory selection requires desktop app
+    alert("目录选择功能需要在桌面端使用。请手动输入路径。");
   }
-};
-
-const handleDirSelected = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  if (input.files && input.files.length > 0) {
-    // Get the directory path from the first file's webkitRelativePath
-    const file = input.files[0];
-    const relativePath = file.webkitRelativePath;
-    // Extract directory name (everything before the first /)
-    const dirName = relativePath.split("/")[0];
-    form.value.parentPath = `~/NovelProjects`;
-  }
-  // Reset input so same folder can be selected again
-  input.value = "";
 };
 
 const submit = async () => {
@@ -116,15 +96,6 @@ const submit = async () => {
 
 <template>
   <div class="dialog-overlay" @click.self="emit('close')">
-    <!-- Hidden file input for browser directory selection -->
-    <input
-      ref="fileInputRef"
-      type="file"
-      webkitdirectory
-      multiple
-      style="display: none"
-      @change="handleDirSelected"
-    />
     <div class="dialog">
       <div class="dialog-header">
         <h3>新建项目</h3>
@@ -167,11 +138,11 @@ const submit = async () => {
         <div class="form-row">
           <div class="form-group">
             <label>总章数</label>
-            <input v-model.number="form.total_chapters" type="number" min="1" />
+            <NumberInput v-model="form.total_chapters" :min="1" :step="1" />
           </div>
           <div class="form-group">
             <label>单章字数</label>
-            <input v-model.number="form.words_per_chapter" type="number" min="500" step="500" />
+            <NumberInput v-model="form.words_per_chapter" :min="500" :step="500" />
           </div>
         </div>
 
