@@ -31,3 +31,10 @@ tauri-build = { version = "2.6", features = [] }
 [lib]
 name = "novel_ide_lib"
 crate-type = ["lib", "cdylib", "staticlib"]
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
