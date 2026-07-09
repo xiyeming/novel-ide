@@ -12,6 +12,7 @@ import AgentPanel from "../agent/AgentPanel.vue";
 import CloudPanel from "../cloud/CloudPanel.vue";
 import ShortcutSettings from "../settings/ShortcutSettings.vue";
 import ThemeSettings from "../settings/ThemeSettings.vue";
+import SettingsPanel from "../settings/SettingsPanel.vue";
 
 const emit = defineEmits<{
   openChapter: [chapterId: string];
@@ -267,8 +268,7 @@ const formatWordCount = (count: number) => {
         <ThemeSettings />
       </div>
       <div v-else-if="activeTab === 'settings'" class="tab-panel">
-        <div class="panel-header-sm">设置</div>
-        <div class="empty-state">设置面板</div>
+        <SettingsPanel />
       </div>
     </div>
 
