@@ -1,6 +1,6 @@
 <!-- src/components/layout/IDELayout.vue -->
 <script setup lang="ts">
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, onMounted, onUnmounted } from "vue";
 import TitleBar from "./TitleBar.vue";
 import ActivityBar from "./ActivityBar.vue";
 import Sidebar from "./Sidebar.vue";
@@ -24,16 +24,11 @@ const sidebarWidth = ref(280);
 const aiStudioWidth = ref(420);
 const bottomPanelHeight = ref(200);
 
-type InspectorType = 'chapter' | 'character' | 'world' | 'prompt' | 'workflow';
-
 const activeView = ref<string>('explorer');
 const sidebarVisible = ref(true);
-const aiStudioVisible = ref(true);
+const aiStudioVisible = ref(false);
 const bottomPanelVisible = ref(false);
-const inspectorVisible = ref(false);
-const inspectorType = ref<InspectorType>('chapter');
 
-// Compute breadcrumb items from current project and chapter
 const breadcrumbItems = computed(() => {
   const items: Array<{ label: string }> = [];
   if (projectStore.currentProject) {
@@ -71,11 +66,24 @@ const onMouseUp = () => {
   dragTarget.value = null;
 };
 
-// Global mouse events
-window.addEventListener("mousemove", onMouseMove);
-window.addEventListener("mouseup", onMouseUp);
+const toggleAIStudio = () => {
+  aiStudioVisible.value = !aiStudioVisible.value;
+};
 
-// Fetch chapters when project changes
+const toggleSidebar = () => {
+  sidebarVisible.value = !sidebarVisible.value;
+};
+
+onMounted(() => {
+  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("mouseup", onMouseUp);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("mousemove", onMouseMove);
+  window.removeEventListener("mouseup", onMouseUp);
+});
+
 watch(
   () => projectStore.currentProject,
   async (project) => {
@@ -97,8 +105,10 @@ const handleOpenChapter = (chapterId: string) => {
 };
 
 defineExpose({
-  inspectorVisible,
-  inspectorType,
+  toggleAIStudio,
+  toggleSidebar,
+  aiStudioVisible,
+  sidebarVisible,
 });
 </script>
 
@@ -108,7 +118,10 @@ defineExpose({
     <div class="ide-main">
       <ActivityBar
         :activeView="activeView"
+        :aiStudioVisible="aiStudioVisible"
         @select="activeView = $event"
+        @toggleAI="toggleAIStudio"
+        @toggleSidebar="toggleSidebar"
       />
       <div class="sidebar" :style="{ width: sidebarVisible ? `${sidebarWidth}px` : '0' }">
         <Sidebar :view="activeView" @openChapter="handleOpenChapter" />

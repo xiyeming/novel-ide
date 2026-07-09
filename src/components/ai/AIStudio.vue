@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useAIStore } from "../../stores/ai";
+import { useProjectStore } from "../../stores/project";
 
 const aiStore = useAIStore();
+const projectStore = useProjectStore();
 
 const activeSection = ref<'task' | 'workflow' | 'context' | 'execution' | 'conversation'>('task');
 const input = ref("");
@@ -15,6 +17,9 @@ const sections = [
   { id: 'conversation', label: '对话', icon: '💬' },
 ];
 
+const currentProject = computed(() => projectStore.currentProject);
+const hasProject = computed(() => !!currentProject.value);
+
 const sendMessage = () => {
   if (!input.value.trim() || aiStore.streaming) return;
   aiStore.sendMessage(input.value);
@@ -25,7 +30,7 @@ const sendMessage = () => {
 <template>
   <div class="ai-studio">
     <div class="studio-header">
-      <h3>AI Studio</h3>
+      <h3>AI 工作室</h3>
     </div>
 
     <div class="studio-sections">
@@ -42,80 +47,74 @@ const sendMessage = () => {
 
       <!-- Task Section -->
       <div v-if="activeSection === 'task'" class="section-content">
-        <div class="task-info">
-          <div class="task-label">当前任务</div>
-          <div class="task-name">生成第35章</div>
-          <div class="task-progress">
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: 42%"></div>
-            </div>
-            <span class="progress-text">42%</span>
-          </div>
-          <div class="task-eta">预计: 22 秒</div>
+        <div v-if="hasProject" class="task-info">
+          <div class="task-label">当前项目</div>
+          <div class="task-name">{{ currentProject?.name }}</div>
+          <div class="task-hint">选择章节开始写作</div>
+        </div>
+        <div v-else class="empty-state">
+          <div class="empty-icon">📝</div>
+          <div class="empty-text">请先打开或创建一个项目</div>
         </div>
       </div>
 
       <!-- Workflow Section -->
       <div v-if="activeSection === 'workflow'" class="section-content">
-        <div class="workflow-steps">
-          <div class="workflow-step completed">
-            <span class="step-icon">✓</span>
+        <div v-if="hasProject" class="workflow-steps">
+          <div class="workflow-step pending">
+            <span class="step-icon">○</span>
             <span class="step-label">① 项目配置</span>
           </div>
-          <div class="workflow-step completed">
-            <span class="step-icon">✓</span>
+          <div class="workflow-step pending">
+            <span class="step-icon">○</span>
             <span class="step-label">② 故事前提</span>
           </div>
-          <div class="workflow-step completed">
-            <span class="step-icon">✓</span>
+          <div class="workflow-step pending">
+            <span class="step-icon">○</span>
             <span class="step-label">③ 世界观</span>
           </div>
-          <div class="workflow-step completed">
-            <span class="step-icon">✓</span>
+          <div class="workflow-step pending">
+            <span class="step-icon">○</span>
             <span class="step-label">④ 角色</span>
           </div>
-          <div class="workflow-step completed">
-            <span class="step-icon">✓</span>
+          <div class="workflow-step pending">
+            <span class="step-icon">○</span>
             <span class="step-label">⑤ 蓝图</span>
           </div>
-          <div class="workflow-step active">
-            <span class="step-icon">●</span>
-            <span class="step-label">⑥ 第12章 Writing...</span>
-          </div>
-          <div class="workflow-step pending">
-            <span class="step-icon">○</span>
-            <span class="step-label">⑦ 审稿 Waiting</span>
-          </div>
-          <div class="workflow-step pending">
-            <span class="step-icon">○</span>
-            <span class="step-label">⑧ 修稿 Waiting</span>
-          </div>
+        </div>
+        <div v-else class="empty-state">
+          <div class="empty-icon">⚙️</div>
+          <div class="empty-text">请先打开一个项目</div>
         </div>
       </div>
 
       <!-- Context Section -->
       <div v-if="activeSection === 'context'" class="section-content">
-        <div class="context-items">
+        <div v-if="hasProject" class="context-items">
           <div class="context-item">
-            <span class="context-check">✔</span>
+            <span class="context-check">○</span>
             <span class="context-label">世界观</span>
           </div>
           <div class="context-item">
-            <span class="context-check">✔</span>
+            <span class="context-check">○</span>
             <span class="context-label">角色</span>
           </div>
           <div class="context-item">
-            <span class="context-check">✔</span>
+            <span class="context-check">○</span>
             <span class="context-label">已写章节</span>
           </div>
           <div class="context-item">
-            <span class="context-check">✔</span>
+            <span class="context-check">○</span>
             <span class="context-label">知识库</span>
           </div>
           <div class="context-item">
-            <span class="context-check">✔</span>
-            <span class="context-label">Prompt</span>
+            <span class="context-check">○</span>
+            <span class="context-label">提示词</span>
           </div>
+        </div>
+        <div v-else class="empty-state">
+          <div class="empty-icon">📚</div>
+          <div class="empty-text">请先打开一个项目</div>
         </div>
       </div>
 
@@ -123,27 +122,23 @@ const sendMessage = () => {
       <div v-if="activeSection === 'execution'" class="section-content">
         <div class="execution-items">
           <div class="execution-item">
-            <span class="execution-label">Agent:</span>
-            <span class="execution-value">Writer Agent</span>
+            <span class="execution-label">智能体:</span>
+            <span class="execution-value">{{ aiStore.selectedModel || '未选择' }}</span>
           </div>
           <div class="execution-item">
-            <span class="execution-label">MCP:</span>
-            <span class="execution-value">3 servers</span>
-          </div>
-          <div class="execution-item">
-            <span class="execution-label">Skills:</span>
-            <span class="execution-value">12 loaded</span>
-          </div>
-          <div class="execution-item">
-            <span class="execution-label">Hooks:</span>
-            <span class="execution-value">2 active</span>
+            <span class="execution-label">状态:</span>
+            <span class="execution-value">{{ aiStore.streaming ? '生成中...' : '空闲' }}</span>
           </div>
         </div>
       </div>
 
       <!-- Conversation Section -->
-      <div v-if="activeSection === 'conversation'" class="section-content">
+      <div v-if="activeSection === 'conversation'" class="section-content conversation-section">
         <div class="conversation-messages">
+          <div v-if="aiStore.messages.length === 0" class="empty-state">
+            <div class="empty-icon">💬</div>
+            <div class="empty-text">暂无对话</div>
+          </div>
           <div
             v-for="msg in aiStore.messages"
             :key="msg.id"
@@ -232,6 +227,23 @@ const sendMessage = () => {
   border-top: 1px solid var(--border-divider);
 }
 
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-6) 0;
+  color: var(--text-secondary);
+}
+
+.empty-icon {
+  font-size: 32px;
+  margin-bottom: var(--spacing-2);
+}
+
+.empty-text {
+  font-size: var(--font-size-sm);
+}
+
 /* Task Styles */
 .task-info {
   display: flex;
@@ -249,34 +261,9 @@ const sendMessage = () => {
   font-weight: var(--font-weight-medium);
 }
 
-.task-progress {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2);
-}
-
-.progress-bar {
-  flex: 1;
-  height: 6px;
-  background: var(--bg-hover);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--blue-400), var(--blue-600));
-  transition: width var(--duration-normal) var(--ease-out);
-}
-
-.progress-text {
+.task-hint {
   font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-}
-
-.task-eta {
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 /* Workflow Styles */
@@ -292,18 +279,6 @@ const sendMessage = () => {
   gap: var(--spacing-2);
   padding: var(--spacing-1) var(--spacing-2);
   font-size: var(--font-size-sm);
-}
-
-.workflow-step.completed {
-  color: var(--success);
-}
-
-.workflow-step.active {
-  color: var(--blue-500);
-  font-weight: var(--font-weight-medium);
-}
-
-.workflow-step.pending {
   color: var(--text-secondary);
 }
 
@@ -325,10 +300,7 @@ const sendMessage = () => {
   gap: var(--spacing-2);
   padding: var(--spacing-1) var(--spacing-2);
   font-size: var(--font-size-sm);
-}
-
-.context-check {
-  color: var(--success);
+  color: var(--text-secondary);
 }
 
 /* Execution Styles */
@@ -353,6 +325,12 @@ const sendMessage = () => {
 }
 
 /* Conversation Styles */
+.conversation-section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .conversation-messages {
   flex: 1;
   overflow-y: auto;
