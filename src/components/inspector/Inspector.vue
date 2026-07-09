@@ -2,20 +2,31 @@
 import { computed } from "vue";
 import { useChapterStore } from "../../stores/chapter";
 
-defineProps<{
+const props = defineProps<{
   type: 'chapter' | 'character' | 'world' | 'prompt' | 'workflow';
 }>();
 
-const chapterStore = useChapterStore();
+const titleMap: Record<string, string> = {
+  chapter: '章节检查器',
+  character: '角色检查器',
+  world: '世界检查器',
+  prompt: '提示词检查器',
+  workflow: '工作流检查器',
+};
 
-const chapter = computed(() => chapterStore.currentChapter);
-const wordCount = computed(() => chapter.value?.content?.length || 0);
+const title = computed(() => titleMap[props.type] || props.type);
+
+const wordCount = computed(() => {
+  if (props.type !== 'chapter') return 0;
+  const chapterStore = useChapterStore();
+  return chapterStore.currentChapter?.content?.length || 0;
+});
 </script>
 
 <template>
   <div class="inspector">
     <div class="inspector-header">
-      <h3>{{ type }} Inspector</h3>
+      <h3>{{ title }}</h3>
     </div>
     <div class="inspector-content">
       <!-- Chapter Inspector -->
